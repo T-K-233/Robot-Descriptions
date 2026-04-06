@@ -191,14 +191,15 @@ def ensure_section(root: ET.Element, tag_name: str, before_tag_name: str | None 
     return section
 
 
-def format_range_value(value) -> str:
-    if isinstance(value, str):
-        return value
+def format_motor_forcerange_from_effort_limit(effort_limit) -> str:
+    """Build MuJoCo motor `forcerange` as symmetric ±|effort_limit| (e.g. Nm for revolute joints)."""
+    if isinstance(effort_limit, (int, float)):
+        mag = abs(effort_limit)
+        return f"-{mag} {mag}"
 
-    if isinstance(value, (list, tuple)) and len(value) == 2:
-        return f"{value[0]} {value[1]}"
-
-    raise ValueError(f"Invalid range value: {value}")
+    raise ValueError(
+        f"effort_limit must be a number, got {type(effort_limit).__name__}: {effort_limit!r}",
+    )
 
 
 def add_actuators_and_sensors(xml_file_path: Path, joint_properties: dict) -> None:
@@ -228,8 +229,11 @@ def add_actuators_and_sensors(xml_file_path: Path, joint_properties: dict) -> No
         motor.set("joint", joint_name)
 
         joint_config = resolve_joint_properties(joint_name, joint_properties)
-        force_range = require_joint_attribute(joint_name, joint_config, "forcerange")
-        motor.set("forcerange", format_range_value(force_range))
+        effort_limit = require_joint_attribute(joint_name, joint_config, "effort_limit")
+        motor.set(
+            "forcerange",
+            format_motor_forcerange_from_effort_limit(effort_limit),
+        )
 
         actuator_section.append(motor)
 
