@@ -34,6 +34,8 @@ Collision geometry in the shipped URDF uses primitives and/or merged meshes from
 
 4. URDF → MJCF
 
+    Joint actuator and MJCF joint tuning are loaded from `robots/<robot>/urdf/joint_properties.json`.
+
     ```bash
     uv run ./scripts/convert_urdf_to_mjcf.py ./robots/<robot>/urdf/<robot_name>.urdf ./robots/<robot>/mjcf/<robot_name>.xml
     ```

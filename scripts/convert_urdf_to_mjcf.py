@@ -1,224 +1,254 @@
 """
-uv run ./scripts/convert_urdf_to_mjcf.py ./robots/miku/urdf/miku.urdf ./robots/miku/mjcf/miku.xml [--freejoint]
+uv run ./scripts/convert_urdf_to_mjcf.py ./robots/<robot>/urdf/<robot_name>.urdf ./robots/<robot>/mjcf/<robot_name>.xml [--freejoint]
 """
 
 import argparse
-import os
+import json
+from pathlib import Path
 import re
 import shutil
-from pathlib import Path
+import subprocess
+import sys
 import xml.etree.ElementTree as ET
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("input", type=str, help="Path to the URDF file.")
-parser.add_argument("output", type=str, help="Path to the XML file.")
-parser.add_argument("--freejoint", action="store_true", help="Add a free joint under the first body element.")
-args = parser.parse_args()
-
-urdf_path = Path(args.input)
-xml_path = Path(args.output)
-
-
-def extract_mesh_folders(urdf_file_path):
-    """
-    Extract all mesh folder paths from a URDF file.
-    """
-    mesh_folders = []
-
-    try:
-        tree = ET.parse(urdf_file_path)
-        root = tree.getroot()
-
-        # Find all mesh elements in the URDF
-        for mesh in root.iter("mesh"):
-            filename = mesh.get("filename")
-            if filename:
-                # Extract the directory part of the path
-                # e.g., "../meshes/left_shoulder_pitch_visual.stl" -> "../meshes/"
-                path_obj = Path(filename)
-                parent = path_obj.parent
-
-                # Only add if there's a directory component (not just a filename)
-                if str(parent) != ".":
-                    folder_path = parent
-                    # Add to list if not already present
-                    if folder_path not in mesh_folders:
-                        mesh_folders.append(folder_path)
-
-    except ET.ParseError as e:
-        print(f"Error parsing URDF file: {e}")
-    except Exception as e:
-        print(f"Error reading URDF file: {e}")
-
-    return mesh_folders
-
-
-# create temporary directory (clean it first if it exists)
-temp_dir = urdf_path.parent.parent / "temp"
-if temp_dir.exists():
-    shutil.rmtree(temp_dir)
-temp_urdf_dir = temp_dir / "urdf"
-temp_urdf_dir.mkdir(parents=True, exist_ok=True)
-temp_meshes_dir = temp_dir / "meshes"
-temp_meshes_dir.mkdir(parents=True, exist_ok=True)
-
-# copy urdf to temporary directory
-shutil.copy(urdf_path, temp_urdf_dir / urdf_path.name)
-
-mesh_folders = extract_mesh_folders(urdf_path)
-
-
-mujoco_compiler_options = {
+MUJOCO_COMPILER_OPTIONS = {
     "meshdir": "../meshes/",
     "discardvisual": "false",
     "fusestatic": "false",
     "angle": "radian",
 }
 
-# add mujoco compiler tag to URDF file
-tree = ET.parse(temp_urdf_dir / urdf_path.name)
-root = tree.getroot()
-mujoco_tag = ET.Element("mujoco")
-compiler_tag = ET.Element("compiler")
-for key, value in mujoco_compiler_options.items():
-    compiler_tag.set(key, value)
-mujoco_tag.append(compiler_tag)
-root.append(mujoco_tag)
-tree.write(temp_urdf_dir / urdf_path.name, encoding="utf-8", xml_declaration=True)
 
-# read the content back for further string replacements
-with open(temp_urdf_dir / urdf_path.name, "r") as file:
-    content = file.read()
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Convert a URDF file to MJCF.")
+    parser.add_argument("input", type=str, help="Path to the URDF file.")
+    parser.add_argument("output", type=str, help="Path to the MJCF XML file.")
+    parser.add_argument(
+        "--freejoint",
+        action="store_true",
+        help="Add a free joint under the first body element.",
+    )
+    return parser.parse_args()
 
-changed_mesh_paths = []
 
-# recursively find all .stl and .STL files in meshes directory and copy them to temp folder
-for pattern in ["*.stl", "*.STL"]:
-    for meshes_path in mesh_folders:
-        full_meshes_path = urdf_path.parent / meshes_path
-        for file_path in full_meshes_path.rglob(pattern):
-            if file_path.is_file():
-                # add folder name as prefix for files in left/ and right/ subdirectories
+def extract_mesh_folders(urdf_file_path: Path) -> list[Path]:
+    mesh_folders: list[Path] = []
+    root = ET.parse(urdf_file_path).getroot()
+
+    for mesh in root.iter("mesh"):
+        filename = mesh.get("filename")
+        if not filename:
+            continue
+
+        mesh_folder = Path(filename).parent
+        if str(mesh_folder) == "." or mesh_folder in mesh_folders:
+            continue
+
+        mesh_folders.append(mesh_folder)
+
+    return mesh_folders
+
+
+def create_temp_directories(urdf_path: Path) -> tuple[Path, Path, Path]:
+    temp_dir = urdf_path.parent.parent / "temp"
+    if temp_dir.exists():
+        shutil.rmtree(temp_dir)
+
+    temp_urdf_dir = temp_dir / "urdf"
+    temp_meshes_dir = temp_dir / "meshes"
+    temp_urdf_dir.mkdir(parents=True, exist_ok=True)
+    temp_meshes_dir.mkdir(parents=True, exist_ok=True)
+    return temp_dir, temp_urdf_dir, temp_meshes_dir
+
+
+def add_mujoco_compiler_tag(urdf_file_path: Path) -> None:
+    tree = ET.parse(urdf_file_path)
+    root = tree.getroot()
+
+    mujoco_tag = root.find("mujoco")
+    if mujoco_tag is None:
+        mujoco_tag = ET.Element("mujoco")
+        root.append(mujoco_tag)
+
+    compiler_tag = mujoco_tag.find("compiler")
+    if compiler_tag is None:
+        compiler_tag = ET.Element("compiler")
+        mujoco_tag.append(compiler_tag)
+
+    for key, value in MUJOCO_COMPILER_OPTIONS.items():
+        compiler_tag.set(key, value)
+
+    tree.write(urdf_file_path, encoding="utf-8", xml_declaration=True)
+
+
+def copy_meshes_to_temp(
+    urdf_path: Path,
+    mesh_folders: list[Path],
+    temp_meshes_dir: Path,
+    temp_urdf_path: Path,
+) -> list[tuple[str, str]]:
+    content = temp_urdf_path.read_text()
+    changed_mesh_paths: list[tuple[str, str]] = []
+
+    for pattern in ("*.stl", "*.STL"):
+        for meshes_path in mesh_folders:
+            full_meshes_path = urdf_path.parent / meshes_path
+            for file_path in full_meshes_path.rglob(pattern):
+                if not file_path.is_file():
+                    continue
+
                 target_filename = file_path.name
-
                 if meshes_path.name != "meshes":
-                    # external mesh files
+                    original_reference = f"{meshes_path}/{file_path.name}"
+                    rewritten_reference = (
+                        f"{meshes_path.parent}/{meshes_path.name}_{file_path.name}"
+                    )
                     target_filename = f"{meshes_path.name}_{target_filename}"
-                    original = f"{meshes_path}/{file_path.name}"
-                    new = f"{meshes_path.parent}/{meshes_path.name}_{file_path.name}"
-                    changed_mesh_paths.append((original, f"{meshes_path.name}_{file_path.name}"))
-                    content = content.replace(original, new)
+                    changed_mesh_paths.append((original_reference, target_filename))
+                    content = content.replace(original_reference, rewritten_reference)
 
-                # copy .stl/.STL file directly to temp directory with modified filename
                 print(f"Found mesh file: {file_path} -> {target_filename}")
                 shutil.copy2(file_path, temp_meshes_dir / target_filename)
 
-
-with open(temp_urdf_dir / urdf_path.name, "w") as file:
-    file.write(content)
-
-# create output directory for MJCF file
-xml_path.parent.mkdir(parents=True, exist_ok=True)
+    temp_urdf_path.write_text(content)
+    return changed_mesh_paths
 
 
-# print(changed_mesh_paths)
+def launch_mujoco_viewer(temp_urdf_dir: Path, urdf_filename: str) -> Path:
+    print("Launching mujoco viewer...")
+    print("Please click the 'Save XML' button in the viewer to save the MJCF file and then close the viewer.")
 
-# set currnet working directory to temp directory
-cwd = os.getcwd()
-os.chdir(temp_urdf_dir)
+    subprocess.run(
+        [sys.executable, "-m", "mujoco.viewer", "--mjcf", urdf_filename],
+        cwd=temp_urdf_dir,
+        check=True,
+    )
 
-print("Launching mujoco viewer...")
-print("Please click the 'Save XML' button in the viewer to save the MJCF file and then close the viewer.")
+    temp_xml_path = temp_urdf_dir / "mjmodel.xml"
+    if not temp_xml_path.exists():
+        raise FileNotFoundError(
+            f"Expected MuJoCo to save MJCF to {temp_xml_path}, but the file was not created.",
+        )
 
-# run mujoco viewer with URDF. mujoco will convert the URDF to MJCF automatically
-os.system(f"python -m mujoco.viewer --mjcf {urdf_path.name}")
-
-# restore current working directory
-os.chdir(cwd)
-
-# mujoco will save file as "mjmodel.xml"
-temp_xml_path = temp_urdf_dir / "mjmodel.xml"
+    return temp_xml_path
 
 
-def add_actuators_and_sensors(xml_file_path):
-    """
-    Automatically add actuator motors and sensors to the MJCF XML file
-    based on joint names found in the file.
-    """
+def load_joint_properties(urdf_path: Path) -> dict:
+    joint_properties_path = urdf_path.parent / "joint_properties.json"
+    if not joint_properties_path.exists():
+        raise FileNotFoundError(
+            f"Joint properties file {joint_properties_path} does not exist!",
+        )
+
+    return json.loads(joint_properties_path.read_text())
+
+
+def resolve_joint_properties(joint_name: str, joint_properties: dict) -> dict:
+    if joint_name in joint_properties:
+        return joint_properties[joint_name]
+
+    for pattern, config in joint_properties.items():
+        try:
+            if re.match(pattern, joint_name):
+                return config
+        except re.error:
+            print(f"Pattern {pattern} is not a valid regex, skipping")
+
+    raise ValueError(
+        f"No joint properties found for joint '{joint_name}'. "
+        "Please add an exact or regex entry to joint_properties.json.",
+    )
+
+
+def require_joint_attribute(joint_name: str, joint_config: dict, attribute_name: str):
+    if attribute_name not in joint_config:
+        raise ValueError(
+            f"Joint '{joint_name}' is missing required attribute '{attribute_name}' "
+            "in joint_properties.json.",
+        )
+
+    return joint_config[attribute_name]
+
+
+def ensure_section(root: ET.Element, tag_name: str, before_tag_name: str | None = None) -> ET.Element:
+    section = root.find(tag_name)
+    if section is not None:
+        section.clear()
+        return section
+
+    section = ET.Element(tag_name)
+    if before_tag_name is None:
+        root.append(section)
+        return section
+
+    before_section = root.find(before_tag_name)
+    if before_section is not None:
+        root.insert(list(root).index(before_section), section)
+    else:
+        root.append(section)
+
+    return section
+
+
+def format_range_value(value) -> str:
+    if isinstance(value, str):
+        return value
+
+    if isinstance(value, (list, tuple)) and len(value) == 2:
+        return f"{value[0]} {value[1]}"
+
+    raise ValueError(f"Invalid range value: {value}")
+
+
+def add_actuators_and_sensors(xml_file_path: Path, joint_properties: dict) -> None:
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
 
-    # Find all joints in the XML
-    joints = []
+    joints: list[str] = []
     for joint in root.iter("joint"):
         joint_name = joint.get("name")
-        if joint_name:
-            actuatorfrcrange = joint.get("actuatorfrcrange")
-            if actuatorfrcrange:
-                joints.append((joint_name, actuatorfrcrange))
+        if not joint_name:
+            continue
+
+        actuatorfrcrange = joint.get("actuatorfrcrange")
+        if actuatorfrcrange:
+            joints.append(joint_name)
 
     if not joints:
         print("No joints with actuatorfrcrange found in XML")
         return
 
-    # Find or create actuator section
-    actuator_section = root.find("actuator")
-    if actuator_section is None:
-        actuator_section = ET.Element("actuator")
-        # Insert before sensor section if it exists, otherwise append
-        sensor_section = root.find("sensor")
-        if sensor_section is not None:
-            root.insert(list(root).index(sensor_section), actuator_section)
-        else:
-            root.append(actuator_section)
-    else:
-        # Clear existing actuators
-        actuator_section.clear()
+    actuator_section = ensure_section(root, "actuator", before_tag_name="sensor")
+    sensor_section = ensure_section(root, "sensor", before_tag_name="equality")
 
-    # Find or create sensor section
-    sensor_section = root.find("sensor")
-    if sensor_section is None:
-        sensor_section = ET.Element("sensor")
-        # Insert before equality section if it exists, otherwise append
-        equality_section = root.find("equality")
-        if equality_section is not None:
-            root.insert(list(root).index(equality_section), sensor_section)
-        else:
-            root.append(sensor_section)
-    else:
-        # Clear existing sensors
-        sensor_section.clear()
-
-    # Add motors for each joint
-    for joint_name, actuatorfrcrange in joints:
+    for joint_name in joints:
         motor = ET.Element("motor")
         motor.set("name", joint_name)
         motor.set("joint", joint_name)
-        motor.set("forcerange", "-10 10")  # TODO: correctly set actuator force range
+
+        joint_config = resolve_joint_properties(joint_name, joint_properties)
+        force_range = require_joint_attribute(joint_name, joint_config, "forcerange")
+        motor.set("forcerange", format_range_value(force_range))
+
         actuator_section.append(motor)
 
-    # Add jointpos and jointvel sensors for each joint
-    for joint_name, _ in joints:
-        # Add joint position sensor
+    for joint_name in joints:
         jointpos = ET.Element("jointpos")
         jointpos.set("name", f"{joint_name}_pos")
         jointpos.set("joint", joint_name)
         sensor_section.append(jointpos)
 
-    for joint_name, _ in joints:
-        # Add joint velocity sensor
+    for joint_name in joints:
         jointvel = ET.Element("jointvel")
         jointvel.set("name", f"{joint_name}_vel")
         jointvel.set("joint", joint_name)
         sensor_section.append(jointvel)
 
-    # Write the updated XML
     tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
 
 
-def add_freejoint(xml_file_path):
-    """Add a free joint as the first child of the first body element."""
+def add_freejoint(xml_file_path: Path) -> None:
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
 
@@ -243,124 +273,72 @@ def add_freejoint(xml_file_path):
     print("Added floating_base_joint to first body element")
 
 
-# Add freejoint if requested
-if args.freejoint:
-    add_freejoint(temp_xml_path)
-
-# Add actuators and sensors to the generated XML
-add_actuators_and_sensors(temp_xml_path)
-
-
-def add_joint_friction_loss_and_armature(xml_file_path, config):
-    """
-    Add frictionloss and armature attributes to joints based on the config dict.
-
-    Args:
-        xml_file_path: Path to the XML file to modify
-        config: Dictionary mapping joint names to their friction_loss and armature values
-                Example: {
-                    "joint_name": {
-                        "friction_loss": 0.05,
-                        "armature": 0.001
-                    }
-                }
-    """
+def apply_joint_properties(xml_file_path: Path, joint_properties: dict) -> None:
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
 
-    # Find all joints in the XML
     for joint in root.iter("joint"):
         joint_name = joint.get("name")
-        if not joint_name:
+        if not joint_name or joint.get("type") == "free":
             continue
 
-        joint_config = None
+        joint_config = resolve_joint_properties(joint_name, joint_properties)
+        friction_loss = require_joint_attribute(joint_name, joint_config, "friction_loss")
+        armature = require_joint_attribute(joint_name, joint_config, "armature")
+        joint.set("frictionloss", str(friction_loss))
+        joint.set("armature", str(armature))
 
-        # First try exact match
-        if joint_name in config:
-            joint_config = config[joint_name]
-        else:
-            # Try regex matching
-            for pattern, config_value in config.items():
-                try:
-                    if re.match(pattern, joint_name):
-                        joint_config = config_value
-                        break
-                except re.error:
-                    # If pattern is not a valid regex, skip it
-                    print(f"Pattern {pattern} is not a valid regex, skipping")
-                    continue
-
-        if joint_config:
-            # Add frictionloss if specified in config
-            if "friction_loss" in joint_config:
-                joint.set("frictionloss", str(joint_config["friction_loss"]))
-
-            # Add armature if specified in config
-            if "armature" in joint_config:
-                joint.set("armature", str(joint_config["armature"]))
-        else:
-            print(f"Joint {joint_name} not found in config")
-            joint.set("frictionloss", "0.05")
-            joint.set("armature", "0.001")
-
-    # Write the updated XML
     tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
 
-config = {
-    "(left|right)_shoulder_(roll|pitch|yaw)": {
-        "friction_loss": 0.1,
-        "armature": 0.01,
-    },
-    "(left|right)_elbow_pitch": {
-        "friction_loss": 0.1,
-        "armature": 0.01,
-    },
-    "(left|right)_wrist_(yaw|roll|pitch)": {
-        "friction_loss": 0.1,
-        "armature": 0.01,
-    },
-    "(left|right)_finger(1|2|3|4|5)_joint(1|2|3|4)": {
-        "friction_loss": 0.1,
-        "armature": 0.01,
-    },
-    "(left|right)_hip_(roll|pitch|yaw)": {
-        "friction_loss": 0.1,
-        "armature": 0.01,
-    },
-    "(left|right)_knee_pitch": {
-        "friction_loss": 0.1,
-        "armature": 0.01,
-    },
-    "(left|right)_ankle_(yaw|roll|pitch)": {
-        "friction_loss": 0.1,
-        "armature": 0.01,
-    },
-    "waist_(roll|pitch|yaw)": {
-        "friction_loss": 0.1,
-        "armature": 0.01,
-    },
-    "neck_(roll|pitch|yaw)": {
-        "friction_loss": 0.1,
-        "armature": 0.01,
-    },
-}
 
-add_joint_friction_loss_and_armature(temp_xml_path, config)
+def write_output_xml(
+    temp_xml_path: Path,
+    output_xml_path: Path,
+    changed_mesh_paths: list[tuple[str, str]],
+) -> None:
+    content = temp_xml_path.read_text()
+
+    for original_reference, rewritten_reference in changed_mesh_paths:
+        content = content.replace(rewritten_reference, original_reference)
+
+    output_xml_path.parent.mkdir(parents=True, exist_ok=True)
+    output_xml_path.write_text(content)
 
 
-with open(temp_xml_path, "r") as file:
-    content = file.read()
+if __name__ == "__main__":
+    args = parse_args()
+    urdf_path = Path(args.input)
+    xml_path = Path(args.output)
 
-# restore the original folder structure for mesh files
-for original, new in changed_mesh_paths:
-    content = content.replace(new, original)
+    if not urdf_path.exists():
+        raise FileNotFoundError(f"URDF file {urdf_path} does not exist!")
 
-with open(xml_path, "w") as file:
-    file.write(content)
+    joint_properties = load_joint_properties(urdf_path)
+    mesh_folders = extract_mesh_folders(urdf_path)
+    temp_dir, temp_urdf_dir, temp_meshes_dir = create_temp_directories(urdf_path)
 
-print(f"MJCF file saved to {xml_path}")
-print("Please open the file and format it with a XML formatter to make it more readable.")
+    try:
+        temp_urdf_path = temp_urdf_dir / urdf_path.name
+        shutil.copy(urdf_path, temp_urdf_path)
+        add_mujoco_compiler_tag(temp_urdf_path)
 
-# delete temporary directory
-shutil.rmtree(temp_dir)
+        changed_mesh_paths = copy_meshes_to_temp(
+            urdf_path=urdf_path,
+            mesh_folders=mesh_folders,
+            temp_meshes_dir=temp_meshes_dir,
+            temp_urdf_path=temp_urdf_path,
+        )
+
+        temp_xml_path = launch_mujoco_viewer(temp_urdf_dir, urdf_path.name)
+
+        if args.freejoint:
+            add_freejoint(temp_xml_path)
+
+        add_actuators_and_sensors(temp_xml_path, joint_properties)
+        apply_joint_properties(temp_xml_path, joint_properties)
+        write_output_xml(temp_xml_path, xml_path, changed_mesh_paths)
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+    print(f"MJCF file saved to {xml_path}")
+    print("Please open the file and format it with a XML formatter to make it more readable.")

@@ -1,3 +1,7 @@
+"""
+uv run ./scripts/export_onshape_to_urdf.py ./robots/<robot>/urdf/config.json
+"""
+
 import argparse
 import json
 import os
