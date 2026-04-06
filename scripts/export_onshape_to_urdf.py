@@ -9,12 +9,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Script to generate URDF file from onshape CAD project.",
     )
-    parser.add_argument(
-        "--config",
-        type=str,
-        help="Path to the config file.",
-        default="./data/miku/urdf/config.json",
-    )
+    parser.add_argument("config", type=str, help="Path to the config file.")
     parser.add_argument(
         "--keep-temp-files",
         action="store_true",

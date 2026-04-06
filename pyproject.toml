@@ -1,7 +1,7 @@
 [project]
-name = "onshape-to-robot-workflow"
+name = "robot-descriptions"
 version = "0.1.0"
-description = "Add your description here"
+description = "Robot descriptions"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [

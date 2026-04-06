@@ -1,26 +1,45 @@
-# Onshape to Robot Workflow
+# Robot Descriptions
 
-This repository contains an example workflow to convert an Onshape CAD model to a URDF and MJCF file.
+URDF and MuJoCo (MJCF) descriptions for humanoid robots and other assets, plus scripts to regenerate them from Onshape using [onshape-to-robot](https://github.com/Rhoban/onshape-to-robot) and to convert URDF to MJCF.
+
+## Contents
+
+Collision geometry in the shipped URDF uses primitives and/or merged meshes from the export pipeline; **visual meshes** are loaded from `robots/<robot>/meshes/` (paths relative to the URDF).
 
 ## Quick Start
 
-```bash
-sudo apt install openscad
-```
+1. setting up dependency.
 
-```bash
-uv sync
-```
+    ```bash
+    sudo apt install openscad
+    uv sync
+    ```
 
-```bash
-uv run ./scripts/export_onshape_to_urdf.py
-```
+2. Regenerate files from Onshape.
 
-```bash
-cd ./data/miku/urdf/assets/
-uv run onshape-to-robot-edit-shape ./chest.stl
-```
+    ```bash
+    uv run ./scripts/export_onshape_to_urdf.py ./robots/<robot>/urdf/config.json
+    ```
 
-```bash
-uv run ./scripts/convert_urdf_to_mjcf.py ./data/miku/urdf/miku.urdf ./data/miku/mjcf/miku.xml 
-```
+    Use `--keep-temp-files` if you need to inspect intermediate `assets/` output.
+
+3. Edit collision shapes (OpenSCAD)
+
+    To edit the collider shapes, use `--keep-temp-files` for the onshape export script. Then, use the following commands to edit:
+
+    ```bash
+    cd ./robots/<robot>/urdf/assets/
+    uv run onshape-to-robot-edit-shape ./chest.stl
+    ```
+
+4. URDF → MJCF
+
+    ```bash
+    uv run ./scripts/convert_urdf_to_mjcf.py ./robots/<robot>/urdf/<robot_name>.urdf ./robots/<robot>/mjcf/<robot_name>.xml
+    ```
+
+    For floating base robots:
+
+    ```bash
+    uv run ./scripts/convert_urdf_to_mjcf.py ./robots/<robot>/urdf/<robot_name>.urdf ./robots/<robot>/mjcf/<robot_name>.xml --freejoint
+    ```

@@ -1,5 +1,5 @@
 """
-uv run ./scripts/convert_urdf_to_mjcf.py ./data/miku/urdf/miku.urdf ./data/miku/mjcf/miku.xml [--freejoint]
+uv run ./scripts/convert_urdf_to_mjcf.py ./robots/miku/urdf/miku.urdf ./robots/miku/mjcf/miku.xml [--freejoint]
 """
 
 import argparse
