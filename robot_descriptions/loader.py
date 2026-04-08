@@ -19,7 +19,28 @@ def load_asset(
     cache_dir: str | Path = "data/",
     timeout: float = 20.0,
 ) -> Path:
-    """Return a cached local path for a relative `robots/<robot>/...` asset."""
+    """Load a robot description file from GitHub, or return it from the local cache.
+
+    This function does the following under the hood:
+
+    1. If ``cache_dir / path`` already exists, return its resolved path.
+    2. Otherwise download the repository ZIP (GitHub API), extract the
+       ``robots/<robot>/`` subtree into ``cache_dir``, then return the resolved path.
+
+    Args:
+        path (`str` | `pathlib.Path`):
+            Relative path inside the repo, e.g. ``"robots/miku/urdf/miku.urdf"``.
+            Must start with ``robots/<robot>/`` and must not be absolute.
+        repo_url (`str`, *optional*):
+            Standard ``https://github.com/owner/repo`` URL; only ``github.com`` is supported.
+        cache_dir (`str` | `pathlib.Path`, *optional*):
+            Root directory for cached ``robots/...``. Defaults to ``"data/"``.
+        timeout (`float`, *optional*):
+            HTTP timeout in seconds for the archive download.
+
+    Returns:
+        `pathlib.Path`: Absolute path to the cached file.
+    """
 
     cache_dir = Path(cache_dir)
     robot_name, relative_asset_path = parse_upstream_asset_path(path)
