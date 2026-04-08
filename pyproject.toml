@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "robot-descriptions"
 version = "0.1.0"
@@ -8,4 +12,18 @@ dependencies = [
     "mujoco>=3.4.0",
     "onshape-to-robot>=1.8.0",
     "pymeshlab>=2025.7.post1",
+]
+
+[project.scripts]
+robot-descriptions-export-onshape-to-urdf = "robot_descriptions.workflow.export_onshape_to_urdf:main"
+robot-descriptions-convert-urdf-to-mjcf = "robot_descriptions.workflow.convert_urdf_to_mjcf:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["robot_descriptions"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/robot_descriptions",
+    "/README.md",
+    "/pyproject.toml",
 ]

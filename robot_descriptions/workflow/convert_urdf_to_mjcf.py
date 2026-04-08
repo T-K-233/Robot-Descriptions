@@ -1,5 +1,5 @@
 """
-uv run ./scripts/convert_urdf_to_mjcf.py ./robots/<robot>/urdf/<robot_name>.urdf ./robots/<robot>/mjcf/<robot_name>.xml [--freejoint]
+uv run robot-descriptions-convert-urdf-to-mjcf ./robots/<robot>/urdf/<robot_name>.urdf ./robots/<robot>/mjcf/<robot_name>.xml [--freejoint]
 """
 
 import argparse
@@ -20,7 +20,7 @@ MUJOCO_COMPILER_OPTIONS = {
 }
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Convert a URDF file to MJCF.")
     parser.add_argument("input", type=str, help="Path to the URDF file.")
     parser.add_argument("output", type=str, help="Path to the MJCF XML file.")
@@ -29,7 +29,7 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Add a free joint under the first body element.",
     )
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def extract_mesh_folders(urdf_file_path: Path) -> list[Path]:
@@ -309,8 +309,8 @@ def write_output_xml(
     output_xml_path.write_text(content)
 
 
-if __name__ == "__main__":
-    args = parse_args()
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
     urdf_path = Path(args.input)
     xml_path = Path(args.output)
 
@@ -346,3 +346,7 @@ if __name__ == "__main__":
 
     print(f"MJCF file saved to {xml_path}")
     print("Please open the file and format it with a XML formatter to make it more readable.")
+
+
+if __name__ == "__main__":
+    main()

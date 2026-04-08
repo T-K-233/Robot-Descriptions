@@ -20,7 +20,10 @@ from pathlib import Path
 from dm_control import mjcf
 from mujoco_utils import types
 
-import consts
+try:
+    from . import consts
+except ImportError:
+    import consts  # type: ignore[no-redef]
 
 
 def build(add_actuators: bool = False) -> types.MjcfRootElement:
@@ -309,7 +312,7 @@ def build(add_actuators: bool = False) -> types.MjcfRootElement:
     return root
 
 
-if __name__ == "__main__":
+def main() -> None:
     root = build()
     xml = root.to_xml_string()
 
@@ -319,3 +322,7 @@ if __name__ == "__main__":
 
     with open(save_path, "w") as f:
         f.write(xml)
+
+
+if __name__ == "__main__":
+    main()

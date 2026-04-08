@@ -1,15 +1,15 @@
 """
-uv run ./scripts/export_onshape_to_urdf.py ./robots/<robot>/urdf/config.json
+uv run robot-descriptions-export-onshape-to-urdf ./robots/<robot>/urdf/config.json
 """
 
 import argparse
 import json
-import os
 from pathlib import Path
 import shutil
+import subprocess
 
 
-if __name__ == "__main__":
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Script to generate URDF file from onshape CAD project.",
     )
@@ -20,14 +20,17 @@ if __name__ == "__main__":
         help="Keep the temporary files.",
         default=False,
     )
-    args = parser.parse_args()
+    return parser.parse_args(argv)
 
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
     # check if the config file exists
     config_file_path = Path(args.config)
     if not config_file_path.exists():
         raise FileNotFoundError(f"Config file {config_file_path} does not exist!")
 
-    robot_name = json.load(open(config_file_path))["output_filename"]
+    robot_name = json.loads(config_file_path.read_text())["output_filename"]
     urdf_dir = config_file_path.parent
     robot_dir = urdf_dir.parent
     scad_dir = robot_dir / "scad"
@@ -43,7 +46,7 @@ if __name__ == "__main__":
             shutil.copy(file, assets_dir / file.name)
 
     # invoke onshape-to-robot to generate the urdf file
-    os.system(f"onshape-to-robot {urdf_dir}")
+    subprocess.run(["onshape-to-robot", str(urdf_dir)], check=True)
 
     # copy everything under merged/ directory to the assets directory
     if (urdf_dir / "assets" / "merged").exists():
@@ -58,11 +61,14 @@ if __name__ == "__main__":
         shutil.rmtree(urdf_dir / "assets", ignore_errors=True)
 
     # modify the urdf to use the mesh from the parent meshes directory
-    with open(urdf_dir / f"{robot_name}.urdf", "r") as file:
-        content = file.read()
+    urdf_path = urdf_dir / f"{robot_name}.urdf"
+    content = urdf_path.read_text()
 
     content = content.replace("assets/merged/", "../meshes/")
     content = content.replace("package://", "")
 
-    with open(urdf_dir / f"{robot_name}.urdf", "w") as file:
-        file.write(content)
+    urdf_path.write_text(content)
+
+
+if __name__ == "__main__":
+    main()

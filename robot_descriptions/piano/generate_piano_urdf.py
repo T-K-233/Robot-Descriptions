@@ -1,10 +1,13 @@
 """
-uv run ./scripts/piano/generate_piano_urdf.py
+python -m robot_descriptions.piano.generate_piano_urdf
 """
 
 from pathlib import Path
 
-import consts
+try:
+    from . import consts
+except ImportError:
+    import consts  # type: ignore[no-redef]
 
 
 def build(add_actuators: bool = False) -> str:
@@ -326,7 +329,7 @@ def build(add_actuators: bool = False) -> str:
     return '\n'.join(urdf_lines)
 
 
-if __name__ == "__main__":
+def main() -> None:
     urdf_content = build()
 
     save_path = Path("./robots/piano/urdf/piano_dep20.urdf")
@@ -335,3 +338,7 @@ if __name__ == "__main__":
 
     with open(save_path, "w") as f:
         f.write(urdf_content)
+
+
+if __name__ == "__main__":
+    main()
