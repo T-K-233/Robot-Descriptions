@@ -15,7 +15,7 @@ _FETCH_LOCK = threading.Lock()
 
 def load_asset(
     path: str | Path,
-    repo_url: str = "https://github.com/T-K-233/Robot-Descriptions",
+    repo_url: str = "https://github.com/Berkeley-Humanoids/Robot-Descriptions",
     cache_dir: str | Path = "data/",
     timeout: float = 20.0,
 ) -> Path:

@@ -19,20 +19,15 @@
         "armature": 0.001,
         "effort_limit": 5.5
     },
-    "(left|right)_hip_(pitch|roll)": {
+    "(left|right)_hip_(pitch|roll|yaw)": {
         "friction_loss": 0.1,
         "armature": 0.03,
         "effort_limit": 97.0
     },
-    "(left|right)_hip_yaw": {
-        "friction_loss": 0.1,
-        "armature": 0.015,
-        "effort_limit": 36.0
-    },
     "(left|right)_knee_pitch": {
         "friction_loss": 0.1,
-        "armature": 0.015,
-        "effort_limit": 36.0
+        "armature": 0.03,
+        "effort_limit": 97.0
     },
     "(left|right)_ankle_(yaw|pitch)": {
         "friction_loss": 0.1,
