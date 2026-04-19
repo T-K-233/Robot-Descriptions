@@ -15,8 +15,8 @@ dependencies = [
 ]
 
 [project.scripts]
-robot-descriptions-export-onshape-to-urdf = "robot_descriptions.workflow.export_onshape_to_urdf:main"
-robot-descriptions-convert-urdf-to-mjcf = "robot_descriptions.workflow.convert_urdf_to_mjcf:main"
+robot-descriptions-onshape-to-urdf = "robot_descriptions.workflow.onshape_to_urdf:main"
+robot-descriptions-urdf-to-mjcf = "robot_descriptions.workflow.urdf_to_mjcf:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["robot_descriptions"]

@@ -20,6 +20,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Keep the temporary files.",
         default=False,
     )
+    parser.add_argument("--convert", action="store_true", help="Convert from local robot.pkl")
     return parser.parse_args(argv)
 
 
@@ -46,7 +47,10 @@ def main(argv: list[str] | None = None) -> None:
             shutil.copy(file, assets_dir / file.name)
 
     # invoke onshape-to-robot to generate the urdf file
-    subprocess.run(["onshape-to-robot", str(urdf_dir)], check=True)
+    if args.convert:
+        subprocess.run(["onshape-to-robot", str(urdf_dir), "--convert"], check=True)
+    else:
+        subprocess.run(["onshape-to-robot", str(urdf_dir)], check=True)
 
     # copy everything under merged/ directory to the assets directory
     if (urdf_dir / "assets" / "merged").exists():
