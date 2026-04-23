@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<robot name="piano">
+<robot name="piano_dep20">
   <material name="white">
     <color rgba="0.9 0.9 0.9 1" />
   </material>
@@ -14,31 +14,31 @@
   <!-- Piano body -->
   <link name="body">
     <visual>
-      <origin xyz="-0.06 0 0.09" rpy="0 0 0" />
+      <origin xyz="-0.06 0 -0.05000000000000002" rpy="0 0 0" />
       <geometry>
         <box size="0.12 1.32 0.18" />
       </geometry>
     </visual>
     <visual>
-      <origin xyz="0.027499999999999997 0 0.05900000000000001" rpy="0 0 0" />
+      <origin xyz="0.027499999999999997 0 -0.081" rpy="0 0 0" />
       <geometry>
          <box size="0.295 1.32 0.11800000000000002" />
       </geometry>
     </visual>
     <collision>
-      <origin xyz="-0.06 0 0.09" rpy="0 0 0" />
+      <origin xyz="-0.06 0 -0.05000000000000002" rpy="0 0 0" />
       <geometry>
          <box size="0.12 1.32 0.18" />
       </geometry>
     </collision>
     <collision>
-      <origin xyz="0.027499999999999997 0 0.05900000000000001" rpy="0 0 0" />
+      <origin xyz="0.027499999999999997 0 -0.081" rpy="0 0 0" />
       <geometry>
          <box size="0.295 1.32 0.11800000000000002" />
       </geometry>
     </collision>
     <inertial>
-      <origin xyz="-0.06 0 0.09" rpy="0 0 0" />
+      <origin xyz="-0.06 0 -0.05000000000000002" rpy="0 0 0" />
       <mass value="10.0" />
       <inertia ixx="0.1" ixy="0.0" ixz="0.0" iyy="0.1" iyz="0.0" izz="0.1" />
     </inertial>
@@ -50,7 +50,7 @@
     <origin xyz="0 0 0" rpy="0 0 0" />
   </joint>
 
-  <link name="key_0">
+  <link name="white_key_0">
     <visual>
       <origin xyz="0.115 0 0" rpy="0 0 0" />
       <geometry>
@@ -71,1494 +71,15 @@
     </inertial>
   </link>
 
-  <joint name="key_0_joint" type="revolute">
+  <joint name="white_joint_0" type="revolute">
     <parent link="base" />
-    <child link="key_0" />
-    <origin xyz="-0.04000000000000001 -0.5864999999999999 0.129" rpy="0 0 0" />
+    <child link="white_key_0" />
+    <origin xyz="-0.04000000000000001 -0.5864999999999999 -0.011" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_2">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_2_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_2" />
-    <origin xyz="-0.04000000000000001 -0.5634999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_3">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_3_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_3" />
-    <origin xyz="-0.04000000000000001 -0.5404999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_5">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_5_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_5" />
-    <origin xyz="-0.04000000000000001 -0.5174999999999998 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_7">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_7_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_7" />
-    <origin xyz="-0.04000000000000001 -0.49449999999999994 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_8">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_8_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_8" />
-    <origin xyz="-0.04000000000000001 -0.4714999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_10">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_10_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_10" />
-    <origin xyz="-0.04000000000000001 -0.4484999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_12">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_12_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_12" />
-    <origin xyz="-0.04000000000000001 -0.4254999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_14">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_14_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_14" />
-    <origin xyz="-0.04000000000000001 -0.4024999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_15">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_15_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_15" />
-    <origin xyz="-0.04000000000000001 -0.37949999999999995 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_17">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_17_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_17" />
-    <origin xyz="-0.04000000000000001 -0.35649999999999993 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_19">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_19_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_19" />
-    <origin xyz="-0.04000000000000001 -0.3334999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_20">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_20_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_20" />
-    <origin xyz="-0.04000000000000001 -0.3104999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_22">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_22_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_22" />
-    <origin xyz="-0.04000000000000001 -0.2874999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_24">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_24_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_24" />
-    <origin xyz="-0.04000000000000001 -0.2644999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_26">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_26_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_26" />
-    <origin xyz="-0.04000000000000001 -0.24149999999999994 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_27">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_27_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_27" />
-    <origin xyz="-0.04000000000000001 -0.21849999999999992 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_29">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_29_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_29" />
-    <origin xyz="-0.04000000000000001 -0.1954999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_31">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_31_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_31" />
-    <origin xyz="-0.04000000000000001 -0.17249999999999993 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_32">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_32_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_32" />
-    <origin xyz="-0.04000000000000001 -0.1494999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_34">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_34_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_34" />
-    <origin xyz="-0.04000000000000001 -0.12649999999999995 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_36">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_36_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_36" />
-    <origin xyz="-0.04000000000000001 -0.10349999999999993 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_38">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_38_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_38" />
-    <origin xyz="-0.04000000000000001 -0.0804999999999999 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_39">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_39_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_39" />
-    <origin xyz="-0.04000000000000001 -0.057499999999999885 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_41">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_41_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_41" />
-    <origin xyz="-0.04000000000000001 -0.034499999999999864 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_43">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_43_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_43" />
-    <origin xyz="-0.04000000000000001 -0.011499999999999955 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_44">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_44_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_44" />
-    <origin xyz="-0.04000000000000001 0.011500000000000066 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_46">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_46_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_46" />
-    <origin xyz="-0.04000000000000001 0.034500000000000086 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_48">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_48_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_48" />
-    <origin xyz="-0.04000000000000001 0.05750000000000011 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_50">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_50_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_50" />
-    <origin xyz="-0.04000000000000001 0.08050000000000013 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_51">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_51_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_51" />
-    <origin xyz="-0.04000000000000001 0.10350000000000004 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_53">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_53_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_53" />
-    <origin xyz="-0.04000000000000001 0.12650000000000006 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_55">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_55_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_55" />
-    <origin xyz="-0.04000000000000001 0.14950000000000008 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_56">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_56_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_56" />
-    <origin xyz="-0.04000000000000001 0.1725000000000001 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_58">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_58_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_58" />
-    <origin xyz="-0.04000000000000001 0.19550000000000012 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_60">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_60_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_60" />
-    <origin xyz="-0.04000000000000001 0.21850000000000003 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_62">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_62_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_62" />
-    <origin xyz="-0.04000000000000001 0.24150000000000005 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_63">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_63_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_63" />
-    <origin xyz="-0.04000000000000001 0.26450000000000007 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_65">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_65_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_65" />
-    <origin xyz="-0.04000000000000001 0.2875000000000001 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_67">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_67_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_67" />
-    <origin xyz="-0.04000000000000001 0.3105000000000001 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_68">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_68_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_68" />
-    <origin xyz="-0.04000000000000001 0.3335 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_70">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_70_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_70" />
-    <origin xyz="-0.04000000000000001 0.35650000000000004 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_72">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_72_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_72" />
-    <origin xyz="-0.04000000000000001 0.37950000000000006 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_74">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_74_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_74" />
-    <origin xyz="-0.04000000000000001 0.4025000000000001 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_75">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_75_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_75" />
-    <origin xyz="-0.04000000000000001 0.4255000000000001 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_77">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_77_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_77" />
-    <origin xyz="-0.04000000000000001 0.4485 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_79">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_79_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_79" />
-    <origin xyz="-0.04000000000000001 0.47150000000000014 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_80">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_80_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_80" />
-    <origin xyz="-0.04000000000000001 0.49450000000000005 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_82">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_82_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_82" />
-    <origin xyz="-0.04000000000000001 0.5175000000000002 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_84">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_84_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_84" />
-    <origin xyz="-0.04000000000000001 0.5405000000000001 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_86">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_86_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_86" />
-    <origin xyz="-0.04000000000000001 0.5635 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_87">
-    <visual>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-      <material name="white" />
-    </visual>
-    <collision>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.15 0.022 0.022" />
-      </geometry>
-    </collision>
-    <inertial>
-      <origin xyz="0.115 0 0" rpy="0 0 0" />
-      <mass value="0.04" />
-      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
-    </inertial>
-  </link>
-
-  <joint name="key_87_joint" type="revolute">
-    <parent link="base" />
-    <child link="key_87" />
-    <origin xyz="-0.04000000000000001 0.5865000000000001 0.129" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06307411789691225" effort="10.00" velocity="6.67" />
-  </joint>
-
-  <link name="key_1">
+  <link name="black_key_1">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1579,15 +100,73 @@
     </inertial>
   </link>
 
-  <joint name="key_1_joint" type="revolute">
+  <joint name="black_joint_1" type="revolute">
     <parent link="base" />
-    <child link="key_1" />
-    <origin xyz="-0.03 -0.575 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_1" />
+    <origin xyz="-0.03 -0.575 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_4">
+  <link name="white_key_2">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_2" type="revolute">
+    <parent link="base" />
+    <child link="white_key_2" />
+    <origin xyz="-0.04000000000000001 -0.5634999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_3">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_3" type="revolute">
+    <parent link="base" />
+    <child link="white_key_3" />
+    <origin xyz="-0.04000000000000001 -0.5404999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_4">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1608,15 +187,44 @@
     </inertial>
   </link>
 
-  <joint name="key_4_joint" type="revolute">
+  <joint name="black_joint_4" type="revolute">
     <parent link="base" />
-    <child link="key_4" />
-    <origin xyz="-0.03 -0.5284999999999999 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_4" />
+    <origin xyz="-0.03 -0.5284999999999999 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_6">
+  <link name="white_key_5">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_5" type="revolute">
+    <parent link="base" />
+    <child link="white_key_5" />
+    <origin xyz="-0.04000000000000001 -0.5174999999999998 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_6">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1637,15 +245,73 @@
     </inertial>
   </link>
 
-  <joint name="key_6_joint" type="revolute">
+  <joint name="black_joint_6" type="revolute">
     <parent link="base" />
-    <child link="key_6" />
-    <origin xyz="-0.03 -0.5054999999999998 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_6" />
+    <origin xyz="-0.03 -0.5054999999999998 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_16">
+  <link name="white_key_7">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_7" type="revolute">
+    <parent link="base" />
+    <child link="white_key_7" />
+    <origin xyz="-0.04000000000000001 -0.49449999999999994 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_8">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_8" type="revolute">
+    <parent link="base" />
+    <child link="white_key_8" />
+    <origin xyz="-0.04000000000000001 -0.4714999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_9">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1666,15 +332,44 @@
     </inertial>
   </link>
 
-  <joint name="key_16_joint" type="revolute">
+  <joint name="black_joint_9" type="revolute">
     <parent link="base" />
-    <child link="key_16" />
-    <origin xyz="-0.03 -0.36749999999999994 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_9" />
+    <origin xyz="-0.03 -0.4594999999999999 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_18">
+  <link name="white_key_10">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_10" type="revolute">
+    <parent link="base" />
+    <child link="white_key_10" />
+    <origin xyz="-0.04000000000000001 -0.4484999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_11">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1695,15 +390,44 @@
     </inertial>
   </link>
 
-  <joint name="key_18_joint" type="revolute">
+  <joint name="black_joint_11" type="revolute">
     <parent link="base" />
-    <child link="key_18" />
-    <origin xyz="-0.03 -0.3444999999999999 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_11" />
+    <origin xyz="-0.03 -0.4364999999999999 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_28">
+  <link name="white_key_12">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_12" type="revolute">
+    <parent link="base" />
+    <child link="white_key_12" />
+    <origin xyz="-0.04000000000000001 -0.4254999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_13">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1724,15 +448,73 @@
     </inertial>
   </link>
 
-  <joint name="key_28_joint" type="revolute">
+  <joint name="black_joint_13" type="revolute">
     <parent link="base" />
-    <child link="key_28" />
-    <origin xyz="-0.03 -0.2064999999999999 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_13" />
+    <origin xyz="-0.03 -0.4135 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_30">
+  <link name="white_key_14">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_14" type="revolute">
+    <parent link="base" />
+    <child link="white_key_14" />
+    <origin xyz="-0.04000000000000001 -0.4024999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_15">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_15" type="revolute">
+    <parent link="base" />
+    <child link="white_key_15" />
+    <origin xyz="-0.04000000000000001 -0.37949999999999995 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_16">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1753,15 +535,44 @@
     </inertial>
   </link>
 
-  <joint name="key_30_joint" type="revolute">
+  <joint name="black_joint_16" type="revolute">
     <parent link="base" />
-    <child link="key_30" />
-    <origin xyz="-0.03 -0.18349999999999989 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_16" />
+    <origin xyz="-0.03 -0.36749999999999994 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_40">
+  <link name="white_key_17">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_17" type="revolute">
+    <parent link="base" />
+    <child link="white_key_17" />
+    <origin xyz="-0.04000000000000001 -0.35649999999999993 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_18">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1782,15 +593,73 @@
     </inertial>
   </link>
 
-  <joint name="key_40_joint" type="revolute">
+  <joint name="black_joint_18" type="revolute">
     <parent link="base" />
-    <child link="key_40" />
-    <origin xyz="-0.03 -0.045499999999999874 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_18" />
+    <origin xyz="-0.03 -0.3444999999999999 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_42">
+  <link name="white_key_19">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_19" type="revolute">
+    <parent link="base" />
+    <child link="white_key_19" />
+    <origin xyz="-0.04000000000000001 -0.3334999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_20">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_20" type="revolute">
+    <parent link="base" />
+    <child link="white_key_20" />
+    <origin xyz="-0.04000000000000001 -0.3104999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_21">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1811,15 +680,44 @@
     </inertial>
   </link>
 
-  <joint name="key_42_joint" type="revolute">
+  <joint name="black_joint_21" type="revolute">
     <parent link="base" />
-    <child link="key_42" />
-    <origin xyz="-0.03 -0.022499999999999853 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_21" />
+    <origin xyz="-0.03 -0.2984999999999999 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_52">
+  <link name="white_key_22">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_22" type="revolute">
+    <parent link="base" />
+    <child link="white_key_22" />
+    <origin xyz="-0.04000000000000001 -0.2874999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_23">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1840,15 +738,44 @@
     </inertial>
   </link>
 
-  <joint name="key_52_joint" type="revolute">
+  <joint name="black_joint_23" type="revolute">
     <parent link="base" />
-    <child link="key_52" />
-    <origin xyz="-0.03 0.11550000000000005 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_23" />
+    <origin xyz="-0.03 -0.27549999999999986 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_54">
+  <link name="white_key_24">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_24" type="revolute">
+    <parent link="base" />
+    <child link="white_key_24" />
+    <origin xyz="-0.04000000000000001 -0.2644999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_25">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1869,15 +796,73 @@
     </inertial>
   </link>
 
-  <joint name="key_54_joint" type="revolute">
+  <joint name="black_joint_25" type="revolute">
     <parent link="base" />
-    <child link="key_54" />
-    <origin xyz="-0.03 0.13850000000000007 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_25" />
+    <origin xyz="-0.03 -0.25249999999999995 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_64">
+  <link name="white_key_26">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_26" type="revolute">
+    <parent link="base" />
+    <child link="white_key_26" />
+    <origin xyz="-0.04000000000000001 -0.24149999999999994 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_27">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_27" type="revolute">
+    <parent link="base" />
+    <child link="white_key_27" />
+    <origin xyz="-0.04000000000000001 -0.21849999999999992 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_28">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1898,15 +883,44 @@
     </inertial>
   </link>
 
-  <joint name="key_64_joint" type="revolute">
+  <joint name="black_joint_28" type="revolute">
     <parent link="base" />
-    <child link="key_64" />
-    <origin xyz="-0.03 0.2765000000000001 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_28" />
+    <origin xyz="-0.03 -0.2064999999999999 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_66">
+  <link name="white_key_29">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_29" type="revolute">
+    <parent link="base" />
+    <child link="white_key_29" />
+    <origin xyz="-0.04000000000000001 -0.1954999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_30">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1927,15 +941,73 @@
     </inertial>
   </link>
 
-  <joint name="key_66_joint" type="revolute">
+  <joint name="black_joint_30" type="revolute">
     <parent link="base" />
-    <child link="key_66" />
-    <origin xyz="-0.03 0.2995000000000001 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_30" />
+    <origin xyz="-0.03 -0.18349999999999989 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_76">
+  <link name="white_key_31">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_31" type="revolute">
+    <parent link="base" />
+    <child link="white_key_31" />
+    <origin xyz="-0.04000000000000001 -0.17249999999999993 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_32">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_32" type="revolute">
+    <parent link="base" />
+    <child link="white_key_32" />
+    <origin xyz="-0.04000000000000001 -0.1494999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_33">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1956,15 +1028,44 @@
     </inertial>
   </link>
 
-  <joint name="key_76_joint" type="revolute">
+  <joint name="black_joint_33" type="revolute">
     <parent link="base" />
-    <child link="key_76" />
-    <origin xyz="-0.03 0.4375000000000001 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_33" />
+    <origin xyz="-0.03 -0.1374999999999999 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_78">
+  <link name="white_key_34">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_34" type="revolute">
+    <parent link="base" />
+    <child link="white_key_34" />
+    <origin xyz="-0.04000000000000001 -0.12649999999999995 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_35">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -1985,15 +1086,44 @@
     </inertial>
   </link>
 
-  <joint name="key_78_joint" type="revolute">
+  <joint name="black_joint_35" type="revolute">
     <parent link="base" />
-    <child link="key_78" />
-    <origin xyz="-0.03 0.46050000000000013 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_35" />
+    <origin xyz="-0.03 -0.11449999999999988 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_9">
+  <link name="white_key_36">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_36" type="revolute">
+    <parent link="base" />
+    <child link="white_key_36" />
+    <origin xyz="-0.04000000000000001 -0.10349999999999993 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_37">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2014,15 +1144,73 @@
     </inertial>
   </link>
 
-  <joint name="key_9_joint" type="revolute">
+  <joint name="black_joint_37" type="revolute">
     <parent link="base" />
-    <child link="key_9" />
-    <origin xyz="-0.03 -0.4594999999999999 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_37" />
+    <origin xyz="-0.03 -0.09149999999999997 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_11">
+  <link name="white_key_38">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_38" type="revolute">
+    <parent link="base" />
+    <child link="white_key_38" />
+    <origin xyz="-0.04000000000000001 -0.0804999999999999 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_39">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_39" type="revolute">
+    <parent link="base" />
+    <child link="white_key_39" />
+    <origin xyz="-0.04000000000000001 -0.057499999999999885 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_40">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2043,15 +1231,44 @@
     </inertial>
   </link>
 
-  <joint name="key_11_joint" type="revolute">
+  <joint name="black_joint_40" type="revolute">
     <parent link="base" />
-    <child link="key_11" />
-    <origin xyz="-0.03 -0.4364999999999999 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_40" />
+    <origin xyz="-0.03 -0.045499999999999874 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_13">
+  <link name="white_key_41">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_41" type="revolute">
+    <parent link="base" />
+    <child link="white_key_41" />
+    <origin xyz="-0.04000000000000001 -0.034499999999999864 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_42">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2072,15 +1289,73 @@
     </inertial>
   </link>
 
-  <joint name="key_13_joint" type="revolute">
+  <joint name="black_joint_42" type="revolute">
     <parent link="base" />
-    <child link="key_13" />
-    <origin xyz="-0.03 -0.4135 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_42" />
+    <origin xyz="-0.03 -0.022499999999999853 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_21">
+  <link name="white_key_43">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_43" type="revolute">
+    <parent link="base" />
+    <child link="white_key_43" />
+    <origin xyz="-0.04000000000000001 -0.011499999999999955 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_44">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_44" type="revolute">
+    <parent link="base" />
+    <child link="white_key_44" />
+    <origin xyz="-0.04000000000000001 0.011500000000000066 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_45">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2101,15 +1376,44 @@
     </inertial>
   </link>
 
-  <joint name="key_21_joint" type="revolute">
+  <joint name="black_joint_45" type="revolute">
     <parent link="base" />
-    <child link="key_21" />
-    <origin xyz="-0.03 -0.2984999999999999 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_45" />
+    <origin xyz="-0.03 0.023500000000000076 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_23">
+  <link name="white_key_46">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_46" type="revolute">
+    <parent link="base" />
+    <child link="white_key_46" />
+    <origin xyz="-0.04000000000000001 0.034500000000000086 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_47">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2130,15 +1434,44 @@
     </inertial>
   </link>
 
-  <joint name="key_23_joint" type="revolute">
+  <joint name="black_joint_47" type="revolute">
     <parent link="base" />
-    <child link="key_23" />
-    <origin xyz="-0.03 -0.27549999999999986 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_47" />
+    <origin xyz="-0.03 0.0465000000000001 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_25">
+  <link name="white_key_48">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_48" type="revolute">
+    <parent link="base" />
+    <child link="white_key_48" />
+    <origin xyz="-0.04000000000000001 0.05750000000000011 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_49">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2159,15 +1492,73 @@
     </inertial>
   </link>
 
-  <joint name="key_25_joint" type="revolute">
+  <joint name="black_joint_49" type="revolute">
     <parent link="base" />
-    <child link="key_25" />
-    <origin xyz="-0.03 -0.25249999999999995 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_49" />
+    <origin xyz="-0.03 0.0695 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_33">
+  <link name="white_key_50">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_50" type="revolute">
+    <parent link="base" />
+    <child link="white_key_50" />
+    <origin xyz="-0.04000000000000001 0.08050000000000013 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_51">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_51" type="revolute">
+    <parent link="base" />
+    <child link="white_key_51" />
+    <origin xyz="-0.04000000000000001 0.10350000000000004 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_52">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2188,15 +1579,44 @@
     </inertial>
   </link>
 
-  <joint name="key_33_joint" type="revolute">
+  <joint name="black_joint_52" type="revolute">
     <parent link="base" />
-    <child link="key_33" />
-    <origin xyz="-0.03 -0.1374999999999999 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_52" />
+    <origin xyz="-0.03 0.11550000000000005 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_35">
+  <link name="white_key_53">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_53" type="revolute">
+    <parent link="base" />
+    <child link="white_key_53" />
+    <origin xyz="-0.04000000000000001 0.12650000000000006 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_54">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2217,15 +1637,73 @@
     </inertial>
   </link>
 
-  <joint name="key_35_joint" type="revolute">
+  <joint name="black_joint_54" type="revolute">
     <parent link="base" />
-    <child link="key_35" />
-    <origin xyz="-0.03 -0.11449999999999988 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_54" />
+    <origin xyz="-0.03 0.13850000000000007 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_37">
+  <link name="white_key_55">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_55" type="revolute">
+    <parent link="base" />
+    <child link="white_key_55" />
+    <origin xyz="-0.04000000000000001 0.14950000000000008 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_56">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_56" type="revolute">
+    <parent link="base" />
+    <child link="white_key_56" />
+    <origin xyz="-0.04000000000000001 0.1725000000000001 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_57">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2246,15 +1724,44 @@
     </inertial>
   </link>
 
-  <joint name="key_37_joint" type="revolute">
+  <joint name="black_joint_57" type="revolute">
     <parent link="base" />
-    <child link="key_37" />
-    <origin xyz="-0.03 -0.09149999999999997 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_57" />
+    <origin xyz="-0.03 0.1845000000000001 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_45">
+  <link name="white_key_58">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_58" type="revolute">
+    <parent link="base" />
+    <child link="white_key_58" />
+    <origin xyz="-0.04000000000000001 0.19550000000000012 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_59">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2275,15 +1782,44 @@
     </inertial>
   </link>
 
-  <joint name="key_45_joint" type="revolute">
+  <joint name="black_joint_59" type="revolute">
     <parent link="base" />
-    <child link="key_45" />
-    <origin xyz="-0.03 0.023500000000000076 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_59" />
+    <origin xyz="-0.03 0.20750000000000013 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_47">
+  <link name="white_key_60">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_60" type="revolute">
+    <parent link="base" />
+    <child link="white_key_60" />
+    <origin xyz="-0.04000000000000001 0.21850000000000003 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_61">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2304,15 +1840,73 @@
     </inertial>
   </link>
 
-  <joint name="key_47_joint" type="revolute">
+  <joint name="black_joint_61" type="revolute">
     <parent link="base" />
-    <child link="key_47" />
-    <origin xyz="-0.03 0.0465000000000001 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_61" />
+    <origin xyz="-0.03 0.23050000000000004 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_49">
+  <link name="white_key_62">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_62" type="revolute">
+    <parent link="base" />
+    <child link="white_key_62" />
+    <origin xyz="-0.04000000000000001 0.24150000000000005 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_63">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_63" type="revolute">
+    <parent link="base" />
+    <child link="white_key_63" />
+    <origin xyz="-0.04000000000000001 0.26450000000000007 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_64">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2333,15 +1927,44 @@
     </inertial>
   </link>
 
-  <joint name="key_49_joint" type="revolute">
+  <joint name="black_joint_64" type="revolute">
     <parent link="base" />
-    <child link="key_49" />
-    <origin xyz="-0.03 0.0695 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_64" />
+    <origin xyz="-0.03 0.2765000000000001 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_57">
+  <link name="white_key_65">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_65" type="revolute">
+    <parent link="base" />
+    <child link="white_key_65" />
+    <origin xyz="-0.04000000000000001 0.2875000000000001 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_66">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2362,15 +1985,73 @@
     </inertial>
   </link>
 
-  <joint name="key_57_joint" type="revolute">
+  <joint name="black_joint_66" type="revolute">
     <parent link="base" />
-    <child link="key_57" />
-    <origin xyz="-0.03 0.1845000000000001 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_66" />
+    <origin xyz="-0.03 0.2995000000000001 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_59">
+  <link name="white_key_67">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_67" type="revolute">
+    <parent link="base" />
+    <child link="white_key_67" />
+    <origin xyz="-0.04000000000000001 0.3105000000000001 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_68">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_68" type="revolute">
+    <parent link="base" />
+    <child link="white_key_68" />
+    <origin xyz="-0.04000000000000001 0.3335 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_69">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2391,15 +2072,44 @@
     </inertial>
   </link>
 
-  <joint name="key_59_joint" type="revolute">
+  <joint name="black_joint_69" type="revolute">
     <parent link="base" />
-    <child link="key_59" />
-    <origin xyz="-0.03 0.20750000000000013 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_69" />
+    <origin xyz="-0.03 0.34550000000000003 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_61">
+  <link name="white_key_70">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_70" type="revolute">
+    <parent link="base" />
+    <child link="white_key_70" />
+    <origin xyz="-0.04000000000000001 0.35650000000000004 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_71">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2420,15 +2130,44 @@
     </inertial>
   </link>
 
-  <joint name="key_61_joint" type="revolute">
+  <joint name="black_joint_71" type="revolute">
     <parent link="base" />
-    <child link="key_61" />
-    <origin xyz="-0.03 0.23050000000000004 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_71" />
+    <origin xyz="-0.03 0.36850000000000005 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_69">
+  <link name="white_key_72">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_72" type="revolute">
+    <parent link="base" />
+    <child link="white_key_72" />
+    <origin xyz="-0.04000000000000001 0.37950000000000006 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_73">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2449,15 +2188,73 @@
     </inertial>
   </link>
 
-  <joint name="key_69_joint" type="revolute">
+  <joint name="black_joint_73" type="revolute">
     <parent link="base" />
-    <child link="key_69" />
-    <origin xyz="-0.03 0.34550000000000003 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_73" />
+    <origin xyz="-0.03 0.39149999999999996 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_71">
+  <link name="white_key_74">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_74" type="revolute">
+    <parent link="base" />
+    <child link="white_key_74" />
+    <origin xyz="-0.04000000000000001 0.4025000000000001 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_75">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_75" type="revolute">
+    <parent link="base" />
+    <child link="white_key_75" />
+    <origin xyz="-0.04000000000000001 0.4255000000000001 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_76">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2478,15 +2275,44 @@
     </inertial>
   </link>
 
-  <joint name="key_71_joint" type="revolute">
+  <joint name="black_joint_76" type="revolute">
     <parent link="base" />
-    <child link="key_71" />
-    <origin xyz="-0.03 0.36850000000000005 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_76" />
+    <origin xyz="-0.03 0.4375000000000001 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_73">
+  <link name="white_key_77">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_77" type="revolute">
+    <parent link="base" />
+    <child link="white_key_77" />
+    <origin xyz="-0.04000000000000001 0.4485 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_78">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2507,15 +2333,73 @@
     </inertial>
   </link>
 
-  <joint name="key_73_joint" type="revolute">
+  <joint name="black_joint_78" type="revolute">
     <parent link="base" />
-    <child link="key_73" />
-    <origin xyz="-0.03 0.39149999999999996 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_78" />
+    <origin xyz="-0.03 0.46050000000000013 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_81">
+  <link name="white_key_79">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_79" type="revolute">
+    <parent link="base" />
+    <child link="white_key_79" />
+    <origin xyz="-0.04000000000000001 0.47150000000000014 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_80">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_80" type="revolute">
+    <parent link="base" />
+    <child link="white_key_80" />
+    <origin xyz="-0.04000000000000001 0.49450000000000005 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_81">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2536,15 +2420,44 @@
     </inertial>
   </link>
 
-  <joint name="key_81_joint" type="revolute">
+  <joint name="black_joint_81" type="revolute">
     <parent link="base" />
-    <child link="key_81" />
-    <origin xyz="-0.03 0.5065000000000001 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_81" />
+    <origin xyz="-0.03 0.5065000000000001 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_83">
+  <link name="white_key_82">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_82" type="revolute">
+    <parent link="base" />
+    <child link="white_key_82" />
+    <origin xyz="-0.04000000000000001 0.5175000000000002 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_83">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2565,15 +2478,44 @@
     </inertial>
   </link>
 
-  <joint name="key_83_joint" type="revolute">
+  <joint name="black_joint_83" type="revolute">
     <parent link="base" />
-    <child link="key_83" />
-    <origin xyz="-0.03 0.5295000000000001 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_83" />
+    <origin xyz="-0.03 0.5295000000000001 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
   </joint>
 
-  <link name="key_85">
+  <link name="white_key_84">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_84" type="revolute">
+    <parent link="base" />
+    <child link="white_key_84" />
+    <origin xyz="-0.04000000000000001 0.5405000000000001 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="black_key_85">
     <visual>
       <origin xyz="0.075 0 0" rpy="0 0 0" />
       <geometry>
@@ -2594,12 +2536,70 @@
     </inertial>
   </link>
 
-  <joint name="key_85_joint" type="revolute">
+  <joint name="black_joint_85" type="revolute">
     <parent link="base" />
-    <child link="key_85" />
-    <origin xyz="-0.03 0.5525 0.14350000000000002" rpy="0 0 0" />
+    <child link="black_key_85" />
+    <origin xyz="-0.03 0.5525 0.0035000000000000014" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="0" upper="0.06656816377582381" effort="10.00" velocity="6.67" />
+    <limit lower="0" upper="0.06656816377582381" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_86">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_86" type="revolute">
+    <parent link="base" />
+    <child link="white_key_86" />
+    <origin xyz="-0.04000000000000001 0.5635 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
+  </joint>
+
+  <link name="white_key_87">
+    <visual>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.15 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.115 0 0" rpy="0 0 0" />
+      <mass value="0.04" />
+      <inertia ixx="3.226666666666666e-06" ixy="0.0" ixz="0.0" iyy="7.661333333333333e-05" iyz="0.0" izz="7.661333333333333e-05" />
+    </inertial>
+  </link>
+
+  <joint name="white_joint_87" type="revolute">
+    <parent link="base" />
+    <child link="white_key_87" />
+    <origin xyz="-0.04000000000000001 0.5865000000000001 -0.011" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.06307411789691225" effort="0.3" velocity="6.67" />
   </joint>
 
 </robot>

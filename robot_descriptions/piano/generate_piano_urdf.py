@@ -21,6 +21,7 @@ def _key_xml(
     joint_origin: tuple,
     visual_origin: tuple,
     max_angle: float,
+    effort: float,
 ) -> list:
     ixx = mass * (ly ** 2 + lz ** 2) / 12
     iyy = mass * (lx ** 2 + lz ** 2) / 12
@@ -54,21 +55,37 @@ def _key_xml(
         f'    <child link="{key_name}" />',
         f'    <origin xyz="{jx} {jy} {jz}" rpy="0 0 0" />',
         '    <axis xyz="0 1 0" />',
-        f'    <limit lower="0" upper="{max_angle}" effort="{consts.KEY_MAX_TORQUE}" velocity="6.67" />',
+        f'    <limit lower="0" upper="{max_angle}" effort="{effort}" velocity="6.67" />',
         '  </joint>',
         '',
     ]
 
 
-def build() -> str:
+def build(variant: str = "dep20") -> str:
     """Programatically build a piano URDF.
+
+    Args:
+        variant: The piano variant to build (``"dep20"`` or ``"nikomaku"``).
 
     Returns:
         URDF XML string.
     """
+    match variant:
+        case "dep20":
+            cfg = consts.PIANO_PARAMS_DEP20
+        case "nikomaku":
+            cfg = consts.PIANO_PARAMS_NIKOMAKU
+        case _:
+            raise ValueError(f"Unknown piano variant: {variant}")
+
+    base_1_pos = cfg.BASE_1_POS
+    base_1_size = cfg.BASE_1_SIZE
+    base_2_pos = cfg.BASE_2_POS
+    base_2_size = cfg.BASE_2_SIZE
+
     urdf_lines = [
         '<?xml version="1.0" encoding="utf-8"?>',
-        '<robot name="piano">',
+        f'<robot name="piano_{variant}">',
         '  <material name="white">',
         f'    <color rgba="{consts.WHITE_KEY_COLOR[0]} {consts.WHITE_KEY_COLOR[1]} {consts.WHITE_KEY_COLOR[2]} {consts.WHITE_KEY_COLOR[3]}" />',
         '  </material>',
@@ -83,31 +100,31 @@ def build() -> str:
         '  <!-- Piano body -->',
         '  <link name="body">',
         '    <visual>',
-        f'      <origin xyz="{consts.BASE_1_POS[0]} {consts.BASE_1_POS[1]} {consts.BASE_1_POS[2]}" rpy="0 0 0" />',
+        f'      <origin xyz="{base_1_pos[0]} {base_1_pos[1]} {base_1_pos[2]}" rpy="0 0 0" />',
         '      <geometry>',
-        f'        <box size="{consts.BASE_1_SIZE[0]*2} {consts.BASE_1_SIZE[1]*2} {consts.BASE_1_SIZE[2]*2}" />',
+        f'        <box size="{base_1_size[0]*2} {base_1_size[1]*2} {base_1_size[2]*2}" />',
         '      </geometry>',
         '    </visual>',
         '    <visual>',
-        f'      <origin xyz="{consts.BASE_2_POS[0]} {consts.BASE_2_POS[1]} {consts.BASE_2_POS[2]}" rpy="0 0 0" />',
+        f'      <origin xyz="{base_2_pos[0]} {base_2_pos[1]} {base_2_pos[2]}" rpy="0 0 0" />',
         '      <geometry>',
-        f'         <box size="{consts.BASE_2_SIZE[0]*2} {consts.BASE_2_SIZE[1]*2} {consts.BASE_2_SIZE[2]*2}" />',
+        f'         <box size="{base_2_size[0]*2} {base_2_size[1]*2} {base_2_size[2]*2}" />',
         '      </geometry>',
         '    </visual>',
         '    <collision>',
-        f'      <origin xyz="{consts.BASE_1_POS[0]} {consts.BASE_1_POS[1]} {consts.BASE_1_POS[2]}" rpy="0 0 0" />',
+        f'      <origin xyz="{base_1_pos[0]} {base_1_pos[1]} {base_1_pos[2]}" rpy="0 0 0" />',
         '      <geometry>',
-        f'         <box size="{consts.BASE_1_SIZE[0]*2} {consts.BASE_1_SIZE[1]*2} {consts.BASE_1_SIZE[2]*2}" />',
+        f'         <box size="{base_1_size[0]*2} {base_1_size[1]*2} {base_1_size[2]*2}" />',
         '      </geometry>',
         '    </collision>',
         '    <collision>',
-        f'      <origin xyz="{consts.BASE_2_POS[0]} {consts.BASE_2_POS[1]} {consts.BASE_2_POS[2]}" rpy="0 0 0" />',
+        f'      <origin xyz="{base_2_pos[0]} {base_2_pos[1]} {base_2_pos[2]}" rpy="0 0 0" />',
         '      <geometry>',
-        f'         <box size="{consts.BASE_2_SIZE[0]*2} {consts.BASE_2_SIZE[1]*2} {consts.BASE_2_SIZE[2]*2}" />',
+        f'         <box size="{base_2_size[0]*2} {base_2_size[1]*2} {base_2_size[2]*2}" />',
         '      </geometry>',
         '    </collision>',
         '    <inertial>',
-        f'      <origin xyz="{consts.BASE_1_POS[0]} {consts.BASE_1_POS[1]} {consts.BASE_1_POS[2]}" rpy="0 0 0" />',
+        f'      <origin xyz="{base_1_pos[0]} {base_1_pos[1]} {base_1_pos[2]}" rpy="0 0 0" />',
         '      <mass value="10.0" />',
         '      <inertia ixx="0.1" ixy="0.0" ixz="0.0" iyy="0.1" iyz="0.0" izz="0.1" />',
         '    </inertial>',
@@ -124,18 +141,17 @@ def build() -> str:
     # Collect every key with its index so we can emit in sorted order (matches MJCF).
     keys: list[tuple[int, str, float]] = []
 
-    # White keys.
     for i in range(consts.NUM_WHITE_KEYS):
         y_coord = (
-            -consts.PIANO_KEY_TOTAL_WIDTH * 0.5
-            + consts.WHITE_KEY_WIDTH * 0.5
-            + i * (consts.WHITE_KEY_WIDTH + consts.SPACING_BETWEEN_WHITE_KEYS)
+            -cfg.PIANO_KEY_TOTAL_WIDTH * 0.5
+            + cfg.WHITE_KEY_WIDTH * 0.5
+            + i * (cfg.WHITE_KEY_WIDTH + cfg.SPACING_BETWEEN_WHITE_KEYS)
         )
         keys.append((consts.WHITE_KEY_INDICES[i], "white", y_coord))
 
     # Lone black key on the far left.
-    y_coord = consts.WHITE_KEY_WIDTH + 0.5 * (
-        -consts.PIANO_KEY_TOTAL_WIDTH + consts.SPACING_BETWEEN_WHITE_KEYS
+    y_coord = cfg.WHITE_KEY_WIDTH + 0.5 * (
+        -cfg.PIANO_KEY_TOTAL_WIDTH + cfg.SPACING_BETWEEN_WHITE_KEYS
     )
     keys.append((consts.BLACK_TRIPLET_KEY_INDICES[0], "black", y_coord))
 
@@ -144,10 +160,9 @@ def build() -> str:
     for twin_index in consts.TWIN_GROUP_INDICES:
         for j in range(2):
             y_coord = (
-                -consts.PIANO_KEY_TOTAL_WIDTH * 0.5
-                + (j + 1) * (consts.WHITE_KEY_WIDTH + consts.SPACING_BETWEEN_WHITE_KEYS)
-                + twin_index
-                * (consts.WHITE_KEY_WIDTH + consts.SPACING_BETWEEN_WHITE_KEYS)
+                -cfg.PIANO_KEY_TOTAL_WIDTH * 0.5
+                + (j + 1) * (cfg.WHITE_KEY_WIDTH + cfg.SPACING_BETWEEN_WHITE_KEYS)
+                + twin_index * (cfg.WHITE_KEY_WIDTH + cfg.SPACING_BETWEEN_WHITE_KEYS)
             )
             keys.append((consts.BLACK_TWIN_KEY_INDICES[n], "black", y_coord))
             n += 1
@@ -157,10 +172,9 @@ def build() -> str:
     for triplet_index in consts.TRIPLET_GROUP_INDICES:
         for j in range(3):
             y_coord = (
-                -consts.PIANO_KEY_TOTAL_WIDTH * 0.5
-                + (j + 1) * (consts.WHITE_KEY_WIDTH + consts.SPACING_BETWEEN_WHITE_KEYS)
-                + triplet_index
-                * (consts.WHITE_KEY_WIDTH + consts.SPACING_BETWEEN_WHITE_KEYS)
+                -cfg.PIANO_KEY_TOTAL_WIDTH * 0.5
+                + (j + 1) * (cfg.WHITE_KEY_WIDTH + cfg.SPACING_BETWEEN_WHITE_KEYS)
+                + triplet_index * (cfg.WHITE_KEY_WIDTH + cfg.SPACING_BETWEEN_WHITE_KEYS)
             )
             keys.append((consts.BLACK_TRIPLET_KEY_INDICES[n], "black", y_coord))
             n += 1
@@ -172,48 +186,48 @@ def build() -> str:
         joint_name = f"{color}_joint_{index}"
         if color == "white":
             joint_origin = (
-                consts.WHITE_KEY_X_OFFSET
-                + consts.WHITE_KEY_LENGTH / 2
-                - consts.WHITE_KEY_TOTAL_LENGTH,
+                cfg.WHITE_KEY_X_OFFSET
+                + cfg.WHITE_KEY_LENGTH / 2
+                - cfg.WHITE_KEY_TOTAL_LENGTH,
                 y_coord,
-                consts.WHITE_KEY_Z_OFFSET,
+                cfg.WHITE_KEY_Z_OFFSET,
             )
             visual_origin = (
-                consts.WHITE_KEY_TOTAL_LENGTH
-                - consts.WHITE_KEY_LENGTH
-                + consts.WHITE_KEY_LENGTH / 2,
+                cfg.WHITE_KEY_TOTAL_LENGTH
+                - cfg.WHITE_KEY_LENGTH
+                + cfg.WHITE_KEY_LENGTH / 2,
                 0,
                 0,
             )
-            mass = consts.WHITE_KEY_MASS
+            mass = cfg.WHITE_KEY_MASS
             lx, ly, lz = (
-                consts.WHITE_KEY_LENGTH,
-                consts.WHITE_KEY_WIDTH,
-                consts.WHITE_KEY_HEIGHT,
+                cfg.WHITE_KEY_LENGTH,
+                cfg.WHITE_KEY_WIDTH,
+                cfg.WHITE_KEY_HEIGHT,
             )
-            max_angle = consts.WHITE_KEY_JOINT_MAX_ANGLE
+            max_angle = cfg.WHITE_KEY_JOINT_MAX_ANGLE
         else:
             joint_origin = (
-                consts.BLACK_KEY_X_OFFSET
-                + consts.BLACK_KEY_LENGTH / 2
-                - consts.BLACK_KEY_TOTAL_LENGTH,
+                cfg.BLACK_KEY_X_OFFSET
+                + cfg.BLACK_KEY_LENGTH / 2
+                - cfg.BLACK_KEY_TOTAL_LENGTH,
                 y_coord,
-                consts.BLACK_KEY_Z_OFFSET,
+                cfg.BLACK_KEY_Z_OFFSET,
             )
             visual_origin = (
-                consts.BLACK_KEY_TOTAL_LENGTH
-                - consts.BLACK_KEY_LENGTH
-                + consts.BLACK_KEY_LENGTH / 2,
+                cfg.BLACK_KEY_TOTAL_LENGTH
+                - cfg.BLACK_KEY_LENGTH
+                + cfg.BLACK_KEY_LENGTH / 2,
                 0,
                 0,
             )
-            mass = consts.BLACK_KEY_MASS
+            mass = cfg.BLACK_KEY_MASS
             lx, ly, lz = (
-                consts.BLACK_KEY_LENGTH,
-                consts.BLACK_KEY_WIDTH,
-                consts.BLACK_KEY_HEIGHT,
+                cfg.BLACK_KEY_LENGTH,
+                cfg.BLACK_KEY_WIDTH,
+                cfg.BLACK_KEY_HEIGHT,
             )
-            max_angle = consts.BLACK_KEY_JOINT_MAX_ANGLE
+            max_angle = cfg.BLACK_KEY_JOINT_MAX_ANGLE
         urdf_lines.extend(
             _key_xml(
                 key_name=key_name,
@@ -226,6 +240,7 @@ def build() -> str:
                 joint_origin=joint_origin,
                 visual_origin=visual_origin,
                 max_angle=max_angle,
+                effort=cfg.KEY_MAX_TORQUE,
             )
         )
 
@@ -236,14 +251,20 @@ def build() -> str:
 
 
 def main() -> None:
-    urdf_content = build()
-
-    save_path = Path("./robots/piano/urdf/piano_dep20.urdf")
-    # create directory if it doesn't exist
-    save_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(save_path, "w") as f:
-        f.write(urdf_content)
+    out_dir = Path("./robots/piano/urdf")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    variants = [
+        ("dep20", consts.PIANO_PARAMS_DEP20),
+        ("nikomaku", consts.PIANO_PARAMS_NIKOMAKU),
+    ]
+    for variant, cfg in variants:
+        (out_dir / f"piano_{variant}.urdf").write_text(build(variant))
+        print(f"piano_{variant}:")
+        print(f"  key-surface to base-bottom height: {cfg.WHITE_KEY_OFFSET_FROM_BASE:.4f} m")
+        print(f"  base width:                        {cfg.BASE_WIDTH:.4f} m")
+        print(f"  piano key total width:             {cfg.PIANO_KEY_TOTAL_WIDTH:.4f} m")
+        print(f"  white key length:                  {cfg.WHITE_KEY_LENGTH:.4f} m")
+        print(f"  black key length:                  {cfg.BLACK_KEY_LENGTH:.4f} m")
 
 
 if __name__ == "__main__":
