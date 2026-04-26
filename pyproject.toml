@@ -18,6 +18,14 @@ dependencies = [
 robot-descriptions-onshape-to-urdf = "robot_descriptions.workflow.onshape_to_urdf:main"
 robot-descriptions-urdf-to-mjcf = "robot_descriptions.workflow.urdf_to_mjcf:main"
 
+[dependency-groups]
+test = [
+    "pytest>=8.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["robot_descriptions"]
 
