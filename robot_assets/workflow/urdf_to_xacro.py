@@ -77,15 +77,44 @@ def build_description_xacro(
 # ---------------------------------------------------------------------------
 
 
-def _joint_macro(robot: str, command: list[str], state: list[str]) -> str:
+_LINKAGE_PARAM_BLOCK = """        <!-- Four-bar transmission geometry, for joints that declare one in
+             ros2_control.json. The geometry is a PHYSICAL FACT so it is always
+             published: calibrate_robot reads it from /robot_description to refer
+             the URDF joint limits into actuator space, even on the runs where the
+             hardware plugin must NOT apply the transform. `linkage_enabled`
+             (= the use_linkage arg) is what switches the plugin's behaviour:
+             false during calibration, which needs raw actuator angles. With it
+             true, RobstrideSystem converts joint<->actuator through the linkage
+             and refers the commanded impedance by J^2, so /joint_states and every
+             controller speak true joint space. -->
+        <xacro:if value="${linkage_ground > 0}">
+          <param name="linkage_ground">${linkage_ground}</param>
+          <param name="linkage_crank_in">${linkage_crank_in}</param>
+          <param name="linkage_coupler">${linkage_coupler}</param>
+          <param name="linkage_crank_out">${linkage_crank_out}</param>
+          <param name="linkage_alpha_zero">${linkage_alpha_zero}</param>
+          <param name="linkage_sign">${linkage_sign}</param>
+          <param name="linkage_enabled">${use_linkage}</param>
+        </xacro:if>
+"""
+
+def _joint_macro(robot: str, command: list[str], state: list[str],
+                 any_linkage: bool = False) -> str:
     cmd_lines = "\n".join(f'      <command_interface name="{n}"/>' for n in command)
     state_lines = "\n".join(f'      <state_interface name="{n}"/>' for n in state)
+    # The four-bar params/section only appear for robots that declare a linkage,
+    # so every other robot regenerates byte-identically.
+    link_params = ("""
+                       use_linkage:=true linkage_ground:=0
+                       linkage_crank_in:=0 linkage_coupler:=0 linkage_crank_out:=0
+                       linkage_alpha_zero:=0 linkage_sign:=1""" if any_linkage else "")
+    link_block = _LINKAGE_PARAM_BLOCK if any_linkage else ""
     return f"""  <!-- One joint: {len(command)} command + {len(state)} state interfaces (MIT mode).
        Real-only hardware params are emitted under xacro:unless (sim/mock ignore them). -->
   <xacro:macro name="{robot}_joint"
                params="name can_id model direction
                        lower_limit upper_limit torque_limit current_limit
-                       use_fake_hardware use_sim">
+                       use_fake_hardware use_sim{link_params}">
     <joint name="${{name}}">
 {cmd_lines}
 {state_lines}
@@ -97,15 +126,38 @@ def _joint_macro(robot: str, command: list[str], state: list[str]) -> str:
         <param name="upper_limit">${{upper_limit}}</param>
         <param name="torque_limit">${{torque_limit}}</param>
         <param name="current_limit">${{current_limit}}</param>
-      </xacro:unless>
+{link_block}      </xacro:unless>
     </joint>
   </xacro:macro>"""
+
+
+#: Four-bar transmission keys a joint may declare under ``linkage`` in
+#: ros2_control.json. Lengths must share one unit; ``alpha_zero`` is in DEGREES.
+_LINKAGE_KEYS = ("ground", "crank_in", "coupler", "crank_out", "alpha_zero", "sign")
 
 
 def _joint_call(robot: str, joint: dict, limits: dict) -> str:
     limit = limits.get(joint["name"], {})
     lower = limit.get("lower", 0.0)
     upper = limit.get("upper", 0.0)
+    linkage = joint.get("linkage")
+    extra = ""
+    if linkage:
+        missing = [k for k in _LINKAGE_KEYS[:4] if k not in linkage]
+        if missing:
+            raise ValueError(
+                f'joint {joint["name"]!r}: linkage missing {missing}; all four '
+                f"lengths (ground/crank_in/coupler/crank_out) are required."
+            )
+        extra = (
+            f'\n                      linkage_ground="{linkage["ground"]}" '
+            f'linkage_crank_in="{linkage["crank_in"]}"\n'
+            f'                      linkage_coupler="{linkage["coupler"]}" '
+            f'linkage_crank_out="{linkage["crank_out"]}"\n'
+            f'                      linkage_alpha_zero="{linkage.get("alpha_zero", 0)}" '
+            f'linkage_sign="{linkage.get("sign", 1)}"'
+            f'\n                      use_linkage="${{use_linkage}}"'
+        )
     return (
         f'    <xacro:{robot}_joint name="{joint["name"]}" can_id="{joint["can_id"]}" '
         f'model="{joint["model"]}" direction="{joint["direction"]}"\n'
@@ -113,7 +165,7 @@ def _joint_call(robot: str, joint: dict, limits: dict) -> str:
         f'                      torque_limit="{joint["torque_limit"]}" '
         f'current_limit="{joint["current_limit"]}"\n'
         f'                      use_fake_hardware="${{use_fake_hardware}}" '
-        f'use_sim="${{use_sim}}"/>'
+        f'use_sim="${{use_sim}}"{extra}/>'
     )
 
 
@@ -124,7 +176,10 @@ def _group_macro(robot: str, group: str, joints: list[dict], limits: dict) -> st
     <!-- TODO: {group} joint declarations land here. -->
   </xacro:macro>"""
     calls = "\n".join(_joint_call(robot, j, limits) for j in joints)
-    return f"""  <xacro:macro name="{robot}_{group}_joints" params="use_fake_hardware use_sim">
+    # use_linkage only becomes a param when a joint in this group declares a
+    # four-bar, so groups/robots without one regenerate byte-identically.
+    extra = " use_linkage:=true" if any(j.get("linkage") for j in joints) else ""
+    return f"""  <xacro:macro name="{robot}_{group}_joints" params="use_fake_hardware use_sim{extra}">
 {calls}
   </xacro:macro>"""
 
@@ -179,16 +234,17 @@ def _combined_macro(
   </xacro:macro>"""
 
 
-def _real_block(robot: str, group: dict, real_plugin: str) -> str:
+def _real_block(robot: str, group: dict, real_plugin: str, use_linkage: bool = False) -> str:
     """One <ros2_control> bus block, indented as a direct child of the real macro."""
     can_arg = group["can_interface_arg"]
+    link_arg = ' use_linkage="${use_linkage}"' if use_linkage else ""
     return f"""    <ros2_control name="{group["block_name"]}" type="system">
       <hardware>
         <plugin>{real_plugin}</plugin>
         <param name="can_interface">${{{can_arg}}}</param>
         <param name="calibration_file">${{calibration_file}}</param>
       </hardware>
-      <xacro:{robot}_{group["name"]}_joints use_fake_hardware="false" use_sim="false"/>
+      <xacro:{robot}_{group["name"]}_joints use_fake_hardware="false" use_sim="false"{link_arg}/>
     </ros2_control>"""
 
 
@@ -216,11 +272,18 @@ def _real_imu_block(imu: dict) -> str:
     </ros2_control>"""
 
 
-def _real_macro(robot: str, groups: list[dict], backends: dict, imu: dict | None = None) -> str:
+def _real_macro(robot: str, groups: list[dict], backends: dict, imu: dict | None = None,
+                joints_by_group: dict[str, list[dict]] | None = None) -> str:
     real_plugin = backends["real"]
     blocks = []
+    # Group descriptors carry no joints, so linkage presence comes from the
+    # joints-by-group map the caller built.
+    jbg = joints_by_group or {}
+    any_linkage = any(j.get("linkage") for js in jbg.values() for j in js)
     for group in groups:
-        block = _real_block(robot, group, real_plugin)
+        block = _real_block(
+            robot, group, real_plugin,
+            use_linkage=any(j.get("linkage") for j in jbg.get(group["name"], [])))
         if group.get("stub"):
             # Stub buses only exist in mode=arms_neck; nest the block inside the guard.
             block = (
@@ -239,6 +302,8 @@ def _real_macro(robot: str, groups: list[dict], backends: dict, imu: dict | None
     params = "mode can_interface_left can_interface_right calibration_file"
     if real_imu:
         params += " imu_port"
+    if any_linkage:
+        params += " use_linkage"
     # Keep the header comment byte-identical for non-IMU robots (only the IMU
     # ones gain the "(plus the base IMU sensor)" note), so regenerating a robot
     # without a real IMU produces no diff.
@@ -258,15 +323,20 @@ def _real_macro(robot: str, groups: list[dict], backends: dict, imu: dict | None
   </xacro:macro>"""
 
 
-def _top_macro(robot: str, name: str, imu: dict | None = None) -> str:
+def _top_macro(robot: str, name: str, imu: dict | None = None,
+               any_linkage: bool = False) -> str:
     real_imu = bool(imu and imu.get("real_plugin"))
     imu_param = " imu_port" if real_imu else ""
     imu_pass = "\n        imu_port=\"${imu_port}\"" if real_imu else ""
+    # use_linkage is only threaded when some joint declares a four-bar, so
+    # robots without one regenerate byte-identically.
+    link_param = " use_linkage" if any_linkage else ""
+    link_pass = "\n        use_linkage=\"${use_linkage}\"" if any_linkage else ""
     return f"""  <!-- Top-level dispatch: combined block for sim/mock, per-bus blocks for real
        (use_sim wins over use_fake_hardware, matching franka_ros2 / UR precedence). -->
   <xacro:macro name="{robot}_ros2_control"
                params="name use_fake_hardware use_sim mode
-                       can_interface_left can_interface_right calibration_file{imu_param}">
+                       can_interface_left can_interface_right calibration_file{imu_param}{link_param}">
     <xacro:if value="${{use_sim or use_fake_hardware}}">
       <xacro:{robot}_ros2_control_combined name="${{name}}"
         use_fake_hardware="${{use_fake_hardware}}" use_sim="${{use_sim}}"/>
@@ -275,7 +345,7 @@ def _top_macro(robot: str, name: str, imu: dict | None = None) -> str:
       <xacro:{robot}_ros2_control_real mode="${{mode}}"
         can_interface_left="${{can_interface_left}}"
         can_interface_right="${{can_interface_right}}"
-        calibration_file="${{calibration_file}}"{imu_pass}/>
+        calibration_file="${{calibration_file}}"{imu_pass}{link_pass}/>
     </xacro:unless>
   </xacro:macro>"""
 
@@ -521,13 +591,16 @@ def build_ros2_control_xacro(robot: str, ros2_control: dict, limits: dict) -> st
 
     active_groups = [g for g in groups if not g.get("stub") and joints_by_group.get(g["name"])]
 
-    parts = [_joint_macro(robot, command, state)]
+    any_linkage = any(j.get("linkage") for j in ros2_control["joints"])
+    parts = [_joint_macro(robot, command, state, any_linkage)]
     for group in groups:
         parts.append(_group_macro(robot, group["name"], joints_by_group.get(group["name"], []), limits))
     imu = ros2_control.get("imu")
     parts.append(_combined_macro(robot, combined_name, active_groups, backends, imu))
-    parts.append(_real_macro(robot, groups, backends, imu))
-    parts.append(_top_macro(robot, combined_name, imu))
+    parts.append(_real_macro(robot, groups, backends, imu, joints_by_group))
+    parts.append(_top_macro(
+        robot, combined_name, imu,
+        any_linkage=any(j.get("linkage") for j in ros2_control["joints"])))
 
     body = "\n\n".join(parts)
     return (
@@ -562,6 +635,10 @@ def build_assembly_xacro(robot: str, ros2_control: dict | None, package: str = D
     name_attr = ros2_control.get("combined_block_name", f"{robot}_system")
     imu = ros2_control.get("imu")
     imu_pass = '\n    imu_port="$(arg imu_port)"' if (imu and imu.get("real_plugin")) else ""
+    # Only pass use_linkage when a joint declares a four-bar, so robots without
+    # one regenerate byte-identically.
+    link_pass = ('\n    use_linkage="$(arg use_linkage)"'
+                 if any(j.get("linkage") for j in ros2_control.get("joints", [])) else "")
     return f"""<?xml version="1.0"?>
 {_banner(robot)}
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="{robot}">
@@ -579,7 +656,7 @@ def build_assembly_xacro(robot: str, ros2_control: dict | None, package: str = D
     mode="$(arg mode)"
     can_interface_left="$(arg can_interface_left)"
     can_interface_right="$(arg can_interface_right)"
-    calibration_file="$(arg calibration_file)"{imu_pass}/>
+    calibration_file="$(arg calibration_file)"{imu_pass}{link_pass}/>
 </robot>
 """
 
