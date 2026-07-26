@@ -7,7 +7,10 @@
   <xacro:macro name="lite_biped_joint"
                params="name can_id model direction
                        lower_limit upper_limit torque_limit current_limit
-                       use_fake_hardware use_sim">
+                       use_fake_hardware use_sim
+                       use_linkage:=true linkage_ground:=0
+                       linkage_crank_in:=0 linkage_coupler:=0 linkage_crank_out:=0
+                       linkage_alpha_zero:=0 linkage_sign:=1">
     <joint name="${name}">
       <command_interface name="position"/>
       <command_interface name="velocity"/>
@@ -25,11 +28,30 @@
         <param name="upper_limit">${upper_limit}</param>
         <param name="torque_limit">${torque_limit}</param>
         <param name="current_limit">${current_limit}</param>
+        <!-- Four-bar transmission geometry, for joints that declare one in
+             ros2_control.json. The geometry is a PHYSICAL FACT so it is always
+             published: calibrate_robot reads it from /robot_description to refer
+             the URDF joint limits into actuator space, even on the runs where the
+             hardware plugin must NOT apply the transform. `linkage_enabled`
+             (= the use_linkage arg) is what switches the plugin's behaviour:
+             false during calibration, which needs raw actuator angles. With it
+             true, RobstrideSystem converts joint<->actuator through the linkage
+             and refers the commanded impedance by J^2, so /joint_states and every
+             controller speak true joint space. -->
+        <xacro:if value="${linkage_ground > 0}">
+          <param name="linkage_ground">${linkage_ground}</param>
+          <param name="linkage_crank_in">${linkage_crank_in}</param>
+          <param name="linkage_coupler">${linkage_coupler}</param>
+          <param name="linkage_crank_out">${linkage_crank_out}</param>
+          <param name="linkage_alpha_zero">${linkage_alpha_zero}</param>
+          <param name="linkage_sign">${linkage_sign}</param>
+          <param name="linkage_enabled">${use_linkage}</param>
+        </xacro:if>
       </xacro:unless>
     </joint>
   </xacro:macro>
 
-  <xacro:macro name="lite_biped_left_leg_joints" params="use_fake_hardware use_sim">
+  <xacro:macro name="lite_biped_left_leg_joints" params="use_fake_hardware use_sim use_linkage:=true">
     <xacro:lite_biped_joint name="left_hip_pitch" can_id="31" model="rs-06" direction="-1"
                       lower_limit="-2.35619" upper_limit="0.785398"
                       torque_limit="36.0" current_limit="43"
@@ -53,14 +75,18 @@
     <xacro:lite_biped_joint name="left_ankle_pitch" can_id="36" model="rs-00" direction="1"
                       lower_limit="-0.523599" upper_limit="0.872665"
                       torque_limit="14.0" current_limit="16"
-                      use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
+                      use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"
+                      linkage_ground="160.449369" linkage_crank_in="40.0"
+                      linkage_coupler="150.0" linkage_crank_out="40.0"
+                      linkage_alpha_zero="338.82213" linkage_sign="1"
+                      use_linkage="${use_linkage}"/>
     <xacro:lite_biped_joint name="left_ankle_roll" can_id="37" model="rs-05" direction="-1"
                       lower_limit="-0.349066" upper_limit="0.349066"
                       torque_limit="5.5" current_limit="14"
                       use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
   </xacro:macro>
 
-  <xacro:macro name="lite_biped_right_leg_joints" params="use_fake_hardware use_sim">
+  <xacro:macro name="lite_biped_right_leg_joints" params="use_fake_hardware use_sim use_linkage:=true">
     <xacro:lite_biped_joint name="right_hip_pitch" can_id="41" model="rs-06" direction="1"
                       lower_limit="-2.35619" upper_limit="0.785398"
                       torque_limit="36.0" current_limit="43"
@@ -84,7 +110,11 @@
     <xacro:lite_biped_joint name="right_ankle_pitch" can_id="46" model="rs-00" direction="-1"
                       lower_limit="-0.523599" upper_limit="0.872665"
                       torque_limit="14.0" current_limit="16"
-                      use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
+                      use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"
+                      linkage_ground="160.449369" linkage_crank_in="40.0"
+                      linkage_coupler="150.0" linkage_crank_out="40.0"
+                      linkage_alpha_zero="338.82213" linkage_sign="1"
+                      use_linkage="${use_linkage}"/>
     <xacro:lite_biped_joint name="right_ankle_roll" can_id="47" model="rs-05" direction="-1"
                       lower_limit="-0.349066" upper_limit="0.349066"
                       torque_limit="5.5" current_limit="14"
@@ -125,14 +155,14 @@
        sensor). The controller_manager runs them concurrently and exposes a
        single flat joint list to controllers. -->
   <xacro:macro name="lite_biped_ros2_control_real"
-               params="mode can_interface_left can_interface_right calibration_file imu_port">
+               params="mode can_interface_left can_interface_right calibration_file imu_port use_linkage">
     <ros2_control name="LiteBipedLeftLeg" type="system">
       <hardware>
         <plugin>humanoid_devices_robstride/RobstrideSystem</plugin>
         <param name="can_interface">${can_interface_left}</param>
         <param name="calibration_file">${calibration_file}</param>
       </hardware>
-      <xacro:lite_biped_left_leg_joints use_fake_hardware="false" use_sim="false"/>
+      <xacro:lite_biped_left_leg_joints use_fake_hardware="false" use_sim="false" use_linkage="${use_linkage}"/>
     </ros2_control>
     <ros2_control name="LiteBipedRightLeg" type="system">
       <hardware>
@@ -140,7 +170,7 @@
         <param name="can_interface">${can_interface_right}</param>
         <param name="calibration_file">${calibration_file}</param>
       </hardware>
-      <xacro:lite_biped_right_leg_joints use_fake_hardware="false" use_sim="false"/>
+      <xacro:lite_biped_right_leg_joints use_fake_hardware="false" use_sim="false" use_linkage="${use_linkage}"/>
     </ros2_control>
     <ros2_control name="LiteBipedIMU" type="sensor">
       <hardware>
@@ -166,7 +196,7 @@
        (use_sim wins over use_fake_hardware, matching franka_ros2 / UR precedence). -->
   <xacro:macro name="lite_biped_ros2_control"
                params="name use_fake_hardware use_sim mode
-                       can_interface_left can_interface_right calibration_file imu_port">
+                       can_interface_left can_interface_right calibration_file imu_port use_linkage">
     <xacro:if value="${use_sim or use_fake_hardware}">
       <xacro:lite_biped_ros2_control_combined name="${name}"
         use_fake_hardware="${use_fake_hardware}" use_sim="${use_sim}"/>
@@ -176,7 +206,8 @@
         can_interface_left="${can_interface_left}"
         can_interface_right="${can_interface_right}"
         calibration_file="${calibration_file}"
-        imu_port="${imu_port}"/>
+        imu_port="${imu_port}"
+        use_linkage="${use_linkage}"/>
     </xacro:unless>
   </xacro:macro>
 

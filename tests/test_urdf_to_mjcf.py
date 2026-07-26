@@ -79,7 +79,7 @@ def test_committed_mjcf_loads_and_sensors_are_site_backed(mjcf_path):
         )
 
 
-def test_add_actuators_emits_motors_and_no_sensors(tmp_path):
+def test_add_actuators_emits_position_actuators_and_no_sensors(tmp_path):
     xml_path = tmp_path / "robot.xml"
     xml_path.write_text(
         """<?xml version="1.0"?>
@@ -98,6 +98,9 @@ def test_add_actuators_emits_motors_and_no_sensors(tmp_path):
 
     root = ET.parse(xml_path).getroot()
     assert root.find("sensor") is None
-    motors = root.findall("./actuator/motor")
-    assert [m.get("name") for m in motors] == ["j1"]
-    assert motors[0].get("forcerange") == "-5 5"
+    # <position>, not <motor>: the joint PD is evaluated every mj_step inside the
+    # physics model rather than sampled once per controller_manager tick.
+    actuators = root.findall("./actuator/position")
+    assert root.findall("./actuator/motor") == []
+    assert [a.get("name") for a in actuators] == ["j1"]
+    assert actuators[0].get("forcerange") == "-5 5"

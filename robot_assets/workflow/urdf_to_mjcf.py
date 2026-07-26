@@ -4,7 +4,7 @@ Pipeline (called by ``generate.py``; the flat URDF is the hub):
   raw URDF + meshes  ->  MuJoCo compile  ->  post-process:
     * replace cylinder geoms with capsules
     * inject <option> physics tuning (from cad/physics.json)
-    * synthesize <motor> actuators (forcerange from joint_properties effort_limit;
+    * synthesize <position> actuators (forcerange from joint_properties effort_limit;
       no <sensor> block -- see add_actuators)
     * set per-joint frictionloss / armature (from joint_properties)
   ->  mjcf/<robot>.xml  (meshdir -> ../meshes/visual/)
@@ -158,7 +158,27 @@ def format_motor_forcerange_from_effort_limit(effort_limit) -> str:
 
 
 def add_actuators(xml_file_path: Path, joint_properties: dict) -> None:
-    """Synthesize one <motor> actuator per actuated joint. Emits no <sensor> block.
+    """Synthesize one <position> actuator per actuated joint. Emits no <sensor> block.
+
+    <position> rather than <motor> because the joint-level PD belongs INSIDE the
+    physics step: MuJoCo evaluates actuators every ``mj_step``, which mirrors the
+    real RobStride drive closing its onboard loop at ~1 kHz independently of the
+    host rate, and lets ``implicitfast`` integrate the damping term implicitly (the
+    reason a stiff PD stays stable at a coarse timestep, and how mjlab trains).
+    A <motor> instead makes ``ctrl`` a raw torque, which forces the host to sample
+    the PD once per controller_manager tick.
+
+    ``kp``/``kv`` are deliberately left at MuJoCo's defaults: the operative gains
+    are mode-dependent (standby, policy, damping all differ) and arrive over
+    ros2_control's stiffness/damping command interfaces, so MujocoSystem overwrites
+    ``actuator_gainprm``/``actuator_biasprm`` every tick. Values baked here would
+    only mislead.
+
+    NO ``ctrlrange``/``ctrllimited`` is emitted, and that is load-bearing: an RL
+    policy is allowed to command a position setpoint BEYOND the mechanical joint
+    limit in order to hold a saturating torque, so clamping the setpoint would
+    silently cap the achievable torque. ``forcerange`` still bounds the output,
+    which is the limit that is physically real.
 
     jointpos/jointvel sensors are intentionally omitted. They are redundant with
     mjData.qpos/qvel -- mjlab reads joint state from the Entity/Articulation data,
@@ -185,12 +205,12 @@ def add_actuators(xml_file_path: Path, joint_properties: dict) -> None:
     actuator_section = ensure_section(root, "actuator")
 
     for joint_name in joints:
-        motor = ET.SubElement(actuator_section, "motor")
-        motor.set("name", joint_name)
-        motor.set("joint", joint_name)
+        actuator = ET.SubElement(actuator_section, "position")
+        actuator.set("name", joint_name)
+        actuator.set("joint", joint_name)
         joint_config = resolve_joint_properties(joint_name, joint_properties)
         effort_limit = require_joint_attribute(joint_name, joint_config, "effort_limit")
-        motor.set("forcerange", format_motor_forcerange_from_effort_limit(effort_limit))
+        actuator.set("forcerange", format_motor_forcerange_from_effort_limit(effort_limit))
 
     tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
 
