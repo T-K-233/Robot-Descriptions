@@ -336,9 +336,18 @@ def patch_contacts(xml_file_path: Path, contact: dict) -> None:
     def walk(body: ET.Element, in_foot: bool) -> None:
         nonlocal n_foot, n_other
         foot = in_foot or (body.get("name") in foot_bodies)
+        # Name collision geoms <body>_collision_<i>. MuJoCo leaves URDF-imported
+        # geoms anonymous, but the training env selects them BY NAME -- mjlab's
+        # friction DR matches r"^(left|right)_foot_collision_\d+$" -- and an
+        # unnamed geom can never match, so the randomization would silently do
+        # nothing. Only fills blanks; an explicit name in the MJCF wins.
+        collision_index = 0
         for geom in body.findall("geom"):
             if not is_collision(geom):
                 continue
+            if not geom.get("name"):
+                geom.set("name", f"{body.get('name')}_collision_{collision_index}")
+            collision_index += 1
             if foot:
                 geom.set("condim", "3")
                 geom.set("friction", foot_friction_str)

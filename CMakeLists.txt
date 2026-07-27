@@ -13,6 +13,7 @@ set(ROBOTS
   lite
   lite_bimanual
   lite_biped
+  lite_biped_debug
   lite_dummy
   lite_pro
 )
