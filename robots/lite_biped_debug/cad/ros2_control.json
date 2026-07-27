@@ -1,0 +1,59 @@
+{
+    "_comment": "ROS 2 hardware mapping for the lite_biped_debug variant (legs-only floating-base humanoid; identical to lite_biped except for a simplified foot collider). Drives generation of xacro/lite_biped_debug.ros2_control.xacro. Joint position limits come from the URDF (single source). The sim/mock combined block also advertises a base IMU <sensor> (use_sim only), backed by the MJCF base_quat/base_gyro/base_accel sensors via MujocoSystem and republished by imu_sensor_broadcaster. real-hardware can_id set from a live bus scan (left can2 ids 31-37, right can3 ids 41-47); direction/current_limit still pending commissioning + leg calibration. ankle_pitch carries a FOUR-BAR linkage (actuator in the shin pushes a coupler to a crank on the foot): ground = sqrt(160^2+12^2) = 160.449369 mm (the actuator pivot is 160 above / 12 BEHIND the ankle pivot, so the ground link is NOT 160), cranks 40, coupler 150, alpha_zero 338.822130 deg, sign +1 -- verified against CAD (the coupler closes to 150.0000 mm at joint -30/0/+50). RobstrideSystem converts joint<->actuator through it and refers the commanded impedance by J^2. Pass use_linkage:=false for calibration, which needs raw actuator angles.",
+
+    "interfaces": {
+        "command": ["position", "velocity", "effort", "stiffness", "damping"],
+        "state": ["position", "velocity", "effort"]
+    },
+
+    "backends": {
+        "sim": "mujoco_ros2_control/MujocoSystem",
+        "mock": "mock_components/GenericSystem",
+        "real": "humanoid_devices_robstride/RobstrideSystem"
+    },
+
+    "args": {
+        "use_fake_hardware": "true",
+        "use_sim": "false",
+        "mode": "legs",
+        "can_interface_left": "can2",
+        "can_interface_right": "can3",
+        "calibration_file": "",
+        "imu_port": "/dev/ttyUSB0",
+        "use_linkage": "true"
+    },
+
+    "base_link": {"name": "base_link", "child": "pelvis"},
+
+    "combined_block_name": "LiteBipedHardware",
+
+    "_comment_imu": "Sim/mock: the base_imu <sensor> lives in the combined block, backed by MujocoSystem's MJCF sensors. Real: a standalone <ros2_control type='sensor'> block (real_block_name) driven by real_plugin (Yahboom WIT USB IMU on imu_port), exposing the SAME interfaces so imu_sensor_broadcaster republishes /imu/data identically -- no separate driver node.",
+    "imu": {"name": "base_imu", "real_plugin": "humanoid_devices_imu_hardware/YahboomImuSensor", "real_block_name": "LiteBipedIMU"},
+
+    "groups": [
+        {"name": "left_leg",  "block_name": "LiteBipedLeftLeg",  "can_interface_arg": "can_interface_left"},
+        {"name": "right_leg", "block_name": "LiteBipedRightLeg", "can_interface_arg": "can_interface_right"}
+    ],
+
+    "modes": {
+        "legs": ["left_leg", "right_leg"]
+    },
+
+    "joints": [
+        {"name": "left_hip_pitch",   "group": "left_leg",  "can_id": 31, "model": "rs-06", "direction": -1, "torque_limit": 36.0, "current_limit": 43},
+        {"name": "left_hip_roll",    "group": "left_leg",  "can_id": 32, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
+        {"name": "left_hip_yaw",     "group": "left_leg",  "can_id": 33, "model": "rs-02", "direction": 1, "torque_limit": 17.0, "current_limit": 27},
+        {"name": "left_knee_pitch",  "group": "left_leg",  "can_id": 34, "model": "rs-06", "direction": -1, "torque_limit": 36.0, "current_limit": 43},
+        {"name": "left_ankle_yaw",   "group": "left_leg",  "can_id": 35, "model": "rs-00", "direction": 1, "torque_limit": 14.0, "current_limit": 16},
+        {"name": "left_ankle_pitch", "group": "left_leg",  "can_id": 36, "model": "rs-00", "direction": 1, "torque_limit": 14.0, "current_limit": 16, "linkage": {"ground": 160.449369, "crank_in": 40.0, "coupler": 150.0, "crank_out": 40.0, "alpha_zero": 338.822130, "sign": 1}},
+        {"name": "left_ankle_roll",  "group": "left_leg",  "can_id": 37, "model": "rs-05", "direction": -1, "torque_limit": 5.5,  "current_limit": 14},
+
+        {"name": "right_hip_pitch",   "group": "right_leg", "can_id": 41, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
+        {"name": "right_hip_roll",    "group": "right_leg", "can_id": 42, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
+        {"name": "right_hip_yaw",     "group": "right_leg", "can_id": 43, "model": "rs-02", "direction": 1, "torque_limit": 17.0, "current_limit": 27},
+        {"name": "right_knee_pitch",  "group": "right_leg", "can_id": 44, "model": "rs-06", "direction": 1, "torque_limit": 36.0, "current_limit": 43},
+        {"name": "right_ankle_yaw",   "group": "right_leg", "can_id": 45, "model": "rs-00", "direction": 1, "torque_limit": 14.0, "current_limit": 16},
+        {"name": "right_ankle_pitch", "group": "right_leg", "can_id": 46, "model": "rs-00", "direction": -1, "torque_limit": 14.0, "current_limit": 16, "linkage": {"ground": 160.449369, "crank_in": 40.0, "coupler": 150.0, "crank_out": 40.0, "alpha_zero": 338.822130, "sign": 1}},
+        {"name": "right_ankle_roll",  "group": "right_leg", "can_id": 47, "model": "rs-05", "direction": -1, "torque_limit": 5.5,  "current_limit": 14}
+    ]
+}
