@@ -3,8 +3,8 @@
      robot (lite_biped_debug.xml: freejoint + IMU site/sensors + actuators) on a
      ground plane, with a `home` keyframe for the standing spawn pose.
 
-     Hand-authored (NOT generated), mirroring lite_biped/mjcf/lite_biped_scene.xml
-     -- the generator emits the robot-only lite_biped_debug.xml (reused as-is by
+     Hand-authored (NOT generated), mirroring lite_biped/mjcf/lite_biped_scene.xml:
+     the generator emits the robot-only lite_biped_debug.xml (reused as-is by
      mjlab training, which adds its own terrain); this wrapper adds the deployment
      floor + spawn pose. It lives in this mjcf/ dir so the included robot's
      meshdir ("../meshes/visual/") resolves. Consumed by humanoid_bringup_lite
