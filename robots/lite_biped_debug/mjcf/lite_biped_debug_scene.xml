@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Deployment sim SCENE for the floating-base lite_biped_debug: the generated
+     robot (lite_biped_debug.xml: freejoint + IMU site/sensors + actuators) on a
+     ground plane, with a `home` keyframe for the standing spawn pose.
+
+     Hand-authored (NOT generated), mirroring lite_biped/mjcf/lite_biped_scene.xml:
+     the generator emits the robot-only lite_biped_debug.xml (reused as-is by
+     mjlab training, which adds its own terrain); this wrapper adds the deployment
+     floor + spawn pose. It lives in this mjcf/ dir so the included robot's
+     meshdir ("../meshes/visual/") resolves. Consumed by humanoid_bringup_lite
+     biped_mujoco.launch (robot_variant:=lite_biped_debug).
+
+     Floor friction and the visual block are byte-identical to lite_biped_scene so
+     that a lite_biped vs lite_biped_debug A/B isolates the FOOT, nothing else.
+
+     home keyframe qpos differs from lite_biped only in the base z: the debug box
+     foot puts the pelvis 25 mm lower at the same joint angles (0.7443 m
+     above the sole vs 0.7693 m), so 0.80 -> 0.775 keeps the same ~31 mm of
+     spawn clearance. The 14 leg joints are unchanged (L hip p/r/y, knee,
+     ankle y/p/r; then R), matching the training default pose. -->
+<mujoco model="lite_biped_debug_scene">
+  <include file="lite_biped_debug.xml"/>
+
+  <statistic center="0 0 0.5" extent="1.6"/>
+
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.35 0.35 0.35" specular="0 0 0"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="120" elevation="-20"/>
+  </visual>
+
+  <asset>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge"
+             rgb1="0.2 0.3 0.4" rgb2="0.1 0.15 0.2" markrgb="0.8 0.8 0.8"
+             width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true"
+              texrepeat="5 5" reflectance="0.1"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 3.0" dir="0 0 -1" directional="true"/>
+    <geom name="floor" type="plane" size="0 0 0.05" material="groundplane"
+          condim="3" friction="1.0 0.005 0.0001"/>
+  </worldbody>
+
+  <keyframe>
+    <key name="home"
+         qpos="0 0 0.775 1 0 0 0
+               -0.1745 0 0 0.3491 0 -0.1745 0
+               -0.1745 0 0 0.3491 0 -0.1745 0"/>
+  </keyframe>
+</mujoco>
