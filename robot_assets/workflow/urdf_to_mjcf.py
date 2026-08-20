@@ -1,17 +1,18 @@
-"""Compile a raw URDF into a post-processed MJCF (training + deployment sim asset).
+"""Compile the URDF hub into a post-processed MJCF, the training and deployment sim asset.
 
-Pipeline (called by ``generate.py``; the flat URDF is the hub):
-  raw URDF + meshes  ->  MuJoCo compile  ->  post-process:
-    * replace cylinder geoms with capsules
-    * inject <option> physics tuning (from cad/physics.json)
-    * synthesize <position> actuators (forcerange from joint_properties effort_limit;
-      no <sensor> block -- see add_actuators)
-    * set per-joint frictionloss / armature (from joint_properties)
-  ->  mjcf/<robot>.xml  (meshdir -> ../meshes/visual/)
+Called by ``generate.py``. The flat URDF is the hub:
 
-Mesh resolution is decoupled from the URDF's relative paths: mesh refs are rewritten
-to bare basenames and MuJoCo is pointed at the real meshes dir during compilation, so
-this works regardless of where the raw URDF lives.
+    URDF + meshes  ->  MuJoCo compile  ->  post-process  ->  mjcf/<robot>.xml
+
+Post-processing replaces cylinder geoms with capsules, injects the ``<option>`` physics
+tuning from ``cad/physics.json``, synthesizes one ``<position>`` actuator per actuated
+joint, and sets per-joint frictionloss and armature from ``cad/joint_properties.json``.
+Floating-base, IMU and contact handling are per-variant opt-ins, also from physics.json.
+
+The compiled model is parsed once and written once, so the intermediate states never
+reach disk. Mesh resolution is decoupled from the URDF's own relative paths: mesh refs
+become bare basenames and MuJoCo is pointed at the real meshes dir while it compiles, so
+this works wherever the URDF lives.
 """
 
 import argparse
@@ -30,82 +31,94 @@ except ModuleNotFoundError as error:
 
 from . import robot_model
 
-# Compiler options applied to the URDF before MuJoCo import (meshdir is set separately
-# to the real meshes dir so compilation resolves the STLs).
-MUJOCO_COMPILER_OPTIONS = {
+# Applied to the URDF before MuJoCo imports it. meshdir is set separately, to the real
+# meshes dir, so compilation resolves the STLs.
+COMPILER_OPTIONS = {
     "discardvisual": "false",
     "fusestatic": "false",
     "angle": "radian",
 }
 
+# Indent width MuJoCo's own XML writer uses, so synthesized sections match the rest.
+INDENT = "  "
 
-def add_mujoco_compiler_tag(urdf_file_path: Path, meshdir: str) -> None:
-    tree = ET.parse(urdf_file_path)
-    root = tree.getroot()
-
-    mujoco_tag = root.find("mujoco")
-    if mujoco_tag is None:
-        mujoco_tag = ET.SubElement(root, "mujoco")
-
-    compiler_tag = mujoco_tag.find("compiler")
-    if compiler_tag is None:
-        compiler_tag = ET.SubElement(mujoco_tag, "compiler")
-
-    compiler_tag.set("meshdir", meshdir)
-    for key, value in MUJOCO_COMPILER_OPTIONS.items():
-        compiler_tag.set(key, value)
-
-    tree.write(urdf_file_path, encoding="utf-8", xml_declaration=True)
+# Where the generated MJCF looks for its meshes, relative to mjcf/<robot>.xml.
+MESHDIR = "../meshes/visual/"
 
 
-def save_mjcf_from_urdf(urdf_path: Path, out_xml_path: Path) -> None:
-    model = mujoco.MjModel.from_xml_path(str(urdf_path))
-    mujoco.mj_saveLastXML(str(out_xml_path), model)
-
-
-def set_compiler_meshdir(xml_file_path: Path, meshdir: str) -> None:
-    tree = ET.parse(xml_file_path)
-    root = tree.getroot()
-    compiler = root.find("compiler")
-    if compiler is None:
-        compiler = ET.Element("compiler")
-        root.insert(0, compiler)
-    compiler.set("meshdir", meshdir)
-    tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
-
-
-def prepend_comment(xml_file_path: Path, text: str) -> None:
-    """Insert ``text`` as an XML comment immediately inside the MJCF root element."""
-    tree = ET.parse(xml_file_path)
-    root = tree.getroot()
-    comment = ET.Comment(text)
-    comment.tail = "\n  "
-    root.insert(0, comment)
-    tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
-
-
-# ---------------------------------------------------------------------------
-# joint_properties lookup
-# ---------------------------------------------------------------------------
-
-
-def resolve_joint_properties(joint_name: str, joint_properties: dict) -> dict:
+def _joint_property(joint_name: str, joint_properties: dict, key: str):
+    """Return one property of a joint, by exact name then by regex key."""
     config = robot_model.resolve_properties(joint_name, joint_properties)
     if config is None:
         raise ValueError(
             f"No joint properties found for joint '{joint_name}'. "
             "Add an exact or regex entry to joint_properties.json.",
         )
-    return config
-
-
-def require_joint_attribute(joint_name: str, joint_config: dict, attribute_name: str):
-    if attribute_name not in joint_config:
+    if key not in config:
         raise ValueError(
-            f"Joint '{joint_name}' is missing required attribute '{attribute_name}' "
+            f"Joint '{joint_name}' is missing required attribute '{key}' "
             "in joint_properties.json.",
         )
-    return joint_config[attribute_name]
+    return config[key]
+
+
+def _section(root: ET.Element, tag: str, before: str | None = None) -> ET.Element:
+    """Return an empty top-level section, creating or clearing it as needed."""
+    section = root.find(tag)
+    if section is not None:
+        section.clear()
+        return section
+
+    section = ET.Element(tag)
+    sibling = root.find(before) if before else None
+    if sibling is None:
+        root.append(section)
+    else:
+        root.insert(list(root).index(sibling), section)
+    return section
+
+
+def _indent_section(root: ET.Element, section: ET.Element) -> None:
+    """Lay a synthesized top-level section out one element per line.
+
+    ElementTree gives appended elements no whitespace, so a section built here would
+    serialize as one unreadable line while the surrounding model stays indented. This
+    touches the line breaks between top-level sections and the children of ``section``.
+    Bodies written by MuJoCo keep their existing layout.
+    """
+    ET.indent(section, space=INDENT, level=1)
+    for child in root:
+        child.tail = "\n" + INDENT
+    root[-1].tail = "\n"  # The last section closes the file, so dedent for </mujoco>.
+
+
+# ---------------------------------------------------------------------------
+# MuJoCo compile
+# ---------------------------------------------------------------------------
+
+
+def compile_mjcf(urdf_path: Path, meshes_dir: Path, work_dir: Path) -> ET.Element:
+    """Compile a URDF with MuJoCo and return the saved model's root element."""
+    tree = robot_model.parse(urdf_path)
+    robot_model.rewrite_mesh_filenames(tree.getroot(), lambda name: name)
+
+    # NB: an Element with no children is falsy, so these must test against None.
+    mujoco_tag = tree.getroot().find("mujoco")
+    if mujoco_tag is None:
+        mujoco_tag = ET.SubElement(tree.getroot(), "mujoco")
+    compiler = mujoco_tag.find("compiler")
+    if compiler is None:
+        compiler = ET.SubElement(mujoco_tag, "compiler")
+    compiler.set("meshdir", str(meshes_dir.resolve()))
+    for key, value in COMPILER_OPTIONS.items():
+        compiler.set(key, value)
+
+    urdf_copy = work_dir / urdf_path.name
+    tree.write(urdf_copy, encoding="utf-8", xml_declaration=True)
+
+    saved = work_dir / "mjmodel.xml"
+    mujoco.mj_saveLastXML(str(saved), mujoco.MjModel.from_xml_path(str(urdf_copy)))
+    return ET.parse(saved).getroot()
 
 
 # ---------------------------------------------------------------------------
@@ -113,389 +126,255 @@ def require_joint_attribute(joint_name: str, joint_config: dict, attribute_name:
 # ---------------------------------------------------------------------------
 
 
-def ensure_section(root: ET.Element, tag_name: str, before_tag_name: str | None = None) -> ET.Element:
-    section = root.find(tag_name)
-    if section is not None:
-        section.clear()
-        return section
-
-    section = ET.Element(tag_name)
-    if before_tag_name is None:
-        root.append(section)
-        return section
-
-    before_section = root.find(before_tag_name)
-    if before_section is not None:
-        root.insert(list(root).index(before_section), section)
-    else:
-        root.append(section)
-    return section
+def replace_cylinders_with_capsules(root: ET.Element) -> int:
+    """Retype every cylinder geom as a capsule. Returns how many changed."""
+    cylinders = [geom for geom in root.iter("geom") if geom.get("type") == "cylinder"]
+    for geom in cylinders:
+        geom.set("type", "capsule")
+    return len(cylinders)
 
 
-def add_option_tag(xml_file_path: Path, physics_options: dict) -> None:
-    if not physics_options:
+def add_option(root: ET.Element, options: dict) -> None:
+    """Set the MuJoCo ``<option>`` attributes from physics.json.
+
+    A variant without physics.json gets no ``<option>`` element at all, rather than an
+    empty one, so its MJCF keeps MuJoCo's own defaults visible.
+    """
+    if not options:
         return
-    tree = ET.parse(xml_file_path)
-    root = tree.getroot()
-
     option = root.find("option")
     if option is None:
         option = ET.Element("option")
         compiler = root.find("compiler")
-        index = list(root).index(compiler) + 1 if compiler is not None else 0
-        root.insert(index, option)
-
-    for key, value in physics_options.items():
-        if key.startswith("_"):
-            continue
-        option.set(key, str(value))
-
-    tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
+        root.insert(list(root).index(compiler) + 1 if compiler is not None else 0, option)
+    for key, value in options.items():
+        if not key.startswith("_"):
+            option.set(key, str(value))
 
 
-def format_motor_forcerange_from_effort_limit(effort_limit) -> str:
-    """MuJoCo motor `forcerange` as symmetric +/-|effort_limit| (Nm for revolute joints)."""
-    if isinstance(effort_limit, (int, float)):
-        mag = abs(effort_limit)
-        return f"-{mag} {mag}"
-    raise ValueError(
-        f"effort_limit must be a number, got {type(effort_limit).__name__}: {effort_limit!r}",
-    )
+def add_actuators(root: ET.Element, joint_properties: dict) -> None:
+    """Synthesize one ``<position>`` actuator per actuated joint. Emits no ``<sensor>``.
 
+    ``<position>`` rather than ``<motor>`` because the joint-level PD belongs inside the
+    physics step. MuJoCo evaluates actuators every ``mj_step``, which mirrors the real
+    RobStride drive closing its onboard loop at about 1 kHz independently of the host
+    rate, and lets ``implicitfast`` integrate the damping term implicitly. That is why a
+    stiff PD stays stable at a coarse timestep, and it is how mjlab trains. A ``<motor>``
+    makes ``ctrl`` a raw torque, which forces the host to sample the PD once per
+    controller_manager tick.
 
-def add_actuators(xml_file_path: Path, joint_properties: dict) -> None:
-    """Synthesize one <position> actuator per actuated joint. Emits no <sensor> block.
+    ``kp`` and ``kv`` stay at MuJoCo's defaults on purpose. The operative gains are
+    mode-dependent, because standby, policy and damping all differ, and they arrive over
+    the ros2_control stiffness and damping command interfaces. MujocoSystem therefore
+    overwrites ``actuator_gainprm`` and ``actuator_biasprm`` every tick, so values baked
+    in here would only mislead.
 
-    <position> rather than <motor> because the joint-level PD belongs INSIDE the
-    physics step: MuJoCo evaluates actuators every ``mj_step``, which mirrors the
-    real RobStride drive closing its onboard loop at ~1 kHz independently of the
-    host rate, and lets ``implicitfast`` integrate the damping term implicitly (the
-    reason a stiff PD stays stable at a coarse timestep, and how mjlab trains).
-    A <motor> instead makes ``ctrl`` a raw torque, which forces the host to sample
-    the PD once per controller_manager tick.
+    No ``ctrlrange`` or ``ctrllimited`` is emitted, and that is load-bearing. An RL policy
+    may command a position setpoint beyond the mechanical joint limit to hold a saturating
+    torque, so clamping the setpoint would silently cap the achievable torque.
+    ``forcerange`` still bounds the output, which is the limit that is physically real.
 
-    ``kp``/``kv`` are deliberately left at MuJoCo's defaults: the operative gains
-    are mode-dependent (standby, policy, damping all differ) and arrive over
-    ros2_control's stiffness/damping command interfaces, so MujocoSystem overwrites
-    ``actuator_gainprm``/``actuator_biasprm`` every tick. Values baked here would
-    only mislead.
-
-    NO ``ctrlrange``/``ctrllimited`` is emitted, and that is load-bearing: an RL
-    policy is allowed to command a position setpoint BEYOND the mechanical joint
-    limit in order to hold a saturating torque, so clamping the setpoint would
-    silently cap the achievable torque. ``forcerange`` still bounds the output,
-    which is the limit that is physically real.
-
-    jointpos/jointvel sensors are intentionally omitted. They are redundant with
-    mjData.qpos/qvel -- mjlab reads joint state from the Entity/Articulation data,
-    not from named MJCF sensors -- and they make the model unloadable under
+    jointpos and jointvel sensors are omitted for two reasons. They duplicate
+    mjData.qpos/qvel, because mjlab reads joint state from the Entity/Articulation data
+    and not from named MJCF sensors. They also make the model unloadable under
     mujoco_ros2_control: its plugin init loops over every sensor and builds
     ``std::string(mj_id2name(model, mjOBJ_SITE, sensor_objid))``
-    (mujoco_ros2_control.cpp:124), which is null for a joint sensor when the model
-    has no <site>s -> SIGABRT. Keeping only actuators leaves the single MJCF usable
-    by both the RL/training sim and ros2_control.
+    (mujoco_ros2_control.cpp:124), which is null for a joint sensor when the model has no
+    ``<site>`` elements, and the process aborts. Keeping only actuators leaves the single
+    MJCF usable by both the RL sim and ros2_control.
     """
-    tree = ET.parse(xml_file_path)
-    root = tree.getroot()
-
-    joints: list[str] = []
-    for joint in root.iter("joint"):
-        joint_name = joint.get("name")
-        if joint_name and joint.get("actuatorfrcrange"):
-            joints.append(joint_name)
-
+    joints = [
+        joint.get("name") for joint in root.iter("joint")
+        if joint.get("name") and joint.get("actuatorfrcrange")
+    ]
     if not joints:
         print("No joints with actuatorfrcrange found in XML")
         return
 
-    actuator_section = ensure_section(root, "actuator")
-
+    section = _section(root, "actuator")
     for joint_name in joints:
-        actuator = ET.SubElement(actuator_section, "position")
+        effort_limit = abs(_joint_property(joint_name, joint_properties, "effort_limit"))
+        actuator = ET.SubElement(section, "position")
         actuator.set("name", joint_name)
         actuator.set("joint", joint_name)
-        joint_config = resolve_joint_properties(joint_name, joint_properties)
-        effort_limit = require_joint_attribute(joint_name, joint_config, "effort_limit")
-        actuator.set("forcerange", format_motor_forcerange_from_effort_limit(effort_limit))
-
-    tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
+        actuator.set("forcerange", f"-{effort_limit} {effort_limit}")
+    _indent_section(root, section)
 
 
-def add_freejoint(xml_file_path: Path) -> None:
-    tree = ET.parse(xml_file_path)
-    root = tree.getroot()
-
-    worldbody = root.find("worldbody")
-    first_body = worldbody.find("body") if worldbody is not None else None
-    if first_body is None:
-        print("No body element found in worldbody")
-        return
-
+def add_freejoint(root: ET.Element) -> None:
+    """Give the root body a 6-DoF free joint, making the base float."""
     freejoint = ET.Element("joint")
     freejoint.set("name", "floating_base_joint")
     freejoint.set("type", "free")
     freejoint.set("limited", "false")
     freejoint.set("actuatorfrclimited", "false")
-    first_body.insert(0, freejoint)
-
-    tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
+    root.find("worldbody").find("body").insert(0, freejoint)
     print("Added floating_base_joint to first body element")
 
 
-def add_imu_site_and_sensors(xml_file_path: Path, imu: dict) -> None:
-    """Add an IMU <site> on the root body plus the base-state <sensor>s.
+def add_imu_site_and_sensors(root: ET.Element, imu: dict) -> None:
+    """Add an IMU ``<site>`` on the root body plus the base-state sensors.
 
-    A floating-base locomotion sim needs, at the base:
-      - orientation / angular velocity / linear acceleration -> surfaced to
-        ros2_control's MujocoSystem as the ``<prefix>_imu`` sensor (from MJCF
-        ``<prefix>_quat``/``_gyro``/``_accel``), republished by
-        imu_sensor_broadcaster as sensor_msgs/Imu on /imu/data;
-      - body-frame linear velocity -> ``<prefix>_vel`` velocimeter, read by the
-        base-velocity MuJoCo physics plugin (the RL policy's ``base_lin_vel``
-        obs term; a state estimator supplies it on hardware).
-    A ``framepos`` is emitted too so mujoco_ros2_control's framepos/framequat
-    Odometry publisher (keyed by site name) is well-formed.
+    A floating-base locomotion sim needs two things at the base. Orientation, angular
+    velocity and linear acceleration reach ros2_control's MujocoSystem as the
+    ``<prefix>_imu`` sensor, built from the MJCF ``_quat``, ``_gyro`` and ``_accel``
+    sensors, and imu_sensor_broadcaster republishes them as sensor_msgs/Imu on /imu/data.
+    Body-frame linear velocity comes from the ``<prefix>_vel`` velocimeter, which the
+    base-velocity MuJoCo physics plugin reads for the RL policy's ``base_lin_vel`` obs
+    term. A state estimator supplies that term on hardware.
 
-    A <site> is mandatory: mujoco_ros2_control resolves every sensor's site via
-    ``mj_id2name(mjOBJ_SITE, ...)`` and SIGABRTs on a siteless model (see
-    add_actuators). Emitted only for floating-base variants (config-gated), so
-    the fixed-base ros2_control variants stay sensor-free.
+    A ``framepos`` is emitted as well, so mujoco_ros2_control's framepos/framequat
+    Odometry publisher, which is keyed by site name, is well-formed.
+
+    The ``<site>`` is mandatory: mujoco_ros2_control resolves every sensor's site through
+    ``mj_id2name(mjOBJ_SITE, ...)`` and aborts on a siteless model. See add_actuators.
+    physics.json gates this block, so the fixed-base variants stay sensor-free.
     """
     site_name = imu.get("site", "imu_site")
     prefix = imu.get("prefix", "base")
-    pos = imu.get("pos", [0.0, 0.0, 0.0])
 
-    tree = ET.parse(xml_file_path)
-    root = tree.getroot()
-    worldbody = root.find("worldbody")
-    first_body = worldbody.find("body") if worldbody is not None else None
-    if first_body is None:
-        print("No body element found in worldbody; skipping IMU site")
-        return
-
+    body = root.find("worldbody").find("body")
     site = ET.Element("site")
     site.set("name", site_name)
-    site.set("pos", " ".join(str(v) for v in pos))
-    # Keep a leading freejoint (if any) as the body's first child.
-    lead = 1 if (len(first_body) and first_body[0].tag == "joint"
-                 and first_body[0].get("type") == "free") else 0
-    first_body.insert(lead, site)
+    site.set("pos", " ".join(str(v) for v in imu.get("pos", [0.0, 0.0, 0.0])))
+    # Keep a leading freejoint, if there is one, as the body's first child.
+    lead = 1 if len(body) and body[0].tag == "joint" and body[0].get("type") == "free" else 0
+    body.insert(lead, site)
 
-    sensor_section = ensure_section(root, "sensor", before_tag_name="actuator")
-    # IMU triad (consumed by MujocoSystem's <prefix>_imu sensor), then the
-    # velocimeter (base linear velocity) and a framepos (odom completeness).
-    quat = ET.SubElement(sensor_section, "framequat")
-    quat.set("name", f"{prefix}_quat")
-    quat.set("objtype", "site")
-    quat.set("objname", site_name)
-    gyro = ET.SubElement(sensor_section, "gyro")
-    gyro.set("name", f"{prefix}_gyro")
-    gyro.set("site", site_name)
-    accel = ET.SubElement(sensor_section, "accelerometer")
-    accel.set("name", f"{prefix}_accel")
-    accel.set("site", site_name)
-    vel = ET.SubElement(sensor_section, "velocimeter")
-    vel.set("name", f"{prefix}_vel")
-    vel.set("site", site_name)
-    fpos = ET.SubElement(sensor_section, "framepos")
-    fpos.set("name", f"{prefix}_pos")
-    fpos.set("objtype", "site")
-    fpos.set("objname", site_name)
-
-    tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
+    # The IMU triad that MujocoSystem reads, then the velocimeter (base linear velocity)
+    # and a framepos (odom completeness).
+    section = _section(root, "sensor", before="actuator")
+    for tag, suffix, attributes in (
+        ("framequat", "quat", {"objtype": "site", "objname": site_name}),
+        ("gyro", "gyro", {"site": site_name}),
+        ("accelerometer", "accel", {"site": site_name}),
+        ("velocimeter", "vel", {"site": site_name}),
+        ("framepos", "pos", {"objtype": "site", "objname": site_name}),
+    ):
+        ET.SubElement(section, tag, {"name": f"{prefix}_{suffix}", **attributes})
+    _indent_section(root, section)
     print(f"Added IMU site '{site_name}' + {prefix}_quat/gyro/accel/vel/pos sensors")
 
 
-def patch_contacts(xml_file_path: Path, contact: dict) -> None:
+def patch_contacts(root: ET.Element, contact: dict) -> None:
     """Match mjlab's contact model for a legged robot.
 
-    mjlab's ``patch_spec`` defaults every collision geom to ``condim=1``
-    (frictionless point contact) and then re-promotes only the foot geoms to
-    ``condim=3`` + friction + priority. This means the feet grip the ground while
-    a grazing shin/thigh/self-contact SLIDES instead of catching -- important for
-    a floating-base gait. Our stock MJCF leaves every collision geom at MuJoCo's
-    default ``condim=3`` + friction, so a leg capsule that brushes the ground (or
-    the other leg) grabs and can trip the robot.
+    mjlab's ``patch_spec`` defaults every collision geom to ``condim=1``, a frictionless
+    point contact, and then re-promotes only the foot geoms to ``condim=3`` with friction
+    and priority. The feet therefore grip the ground while a grazing shin, thigh or
+    self-contact slides instead of catching, which matters for a floating-base gait. Our
+    stock MJCF leaves every collision geom at MuJoCo's default ``condim=3`` with friction,
+    so a leg capsule that brushes the ground or the other leg grabs and can trip the robot.
 
-    Config (physics.json ``contact``): ``foot_bodies`` (bodies whose collision
-    geoms keep friction), ``foot_friction`` (slide coefficient), ``default_condim``
-    (everything else; 1 = frictionless). Higher ``priority`` on the feet makes the
-    foot friction win over the floor's in the contact pair.
+    physics.json's ``contact`` block configures this. ``foot_bodies`` lists the bodies
+    whose collision geoms keep friction, ``foot_friction`` is the slide coefficient, and
+    ``default_condim`` applies to everything else, where 1 means frictionless. The higher
+    ``priority`` on the feet makes the foot friction win over the floor's in the pair.
     """
     foot_bodies = set(contact.get("foot_bodies", ()))
     foot_friction = contact.get("foot_friction", 1.0)
     default_condim = str(int(contact.get("default_condim", 1)))
-    foot_friction_str = f"{foot_friction} 0.005 0.0001"  # slide torsional rolling
-
-    tree = ET.parse(xml_file_path)
-    root = tree.getroot()
-    worldbody = root.find("worldbody")
-    if worldbody is None:
-        return
-
-    def is_collision(geom: ET.Element) -> bool:
-        return geom.get("contype", "1") != "0" or geom.get("conaffinity", "1") != "0"
-
-    n_foot = 0
-    n_other = 0
+    counts = {"foot": 0, "other": 0}
 
     def walk(body: ET.Element, in_foot: bool) -> None:
-        nonlocal n_foot, n_other
-        foot = in_foot or (body.get("name") in foot_bodies)
-        # Name collision geoms <body>_collision_<i>. MuJoCo leaves URDF-imported
-        # geoms anonymous, but the training env selects them BY NAME -- mjlab's
-        # friction DR matches r"^(left|right)_foot_collision_\d+$" -- and an
-        # unnamed geom can never match, so the randomization would silently do
-        # nothing. Only fills blanks; an explicit name in the MJCF wins.
-        collision_index = 0
+        is_foot = in_foot or body.get("name") in foot_bodies
+        # Name collision geoms <body>_collision_<i>. MuJoCo leaves URDF-imported geoms
+        # anonymous, but the training env selects them BY NAME -- mjlab's friction
+        # randomization matches r"^(left|right)_foot_collision_\d+$" -- and an unnamed
+        # geom can never match, so the randomization would silently do nothing. This only
+        # fills blanks: an explicit name in the MJCF wins.
+        index = 0
         for geom in body.findall("geom"):
-            if not is_collision(geom):
+            if geom.get("contype", "1") == "0" and geom.get("conaffinity", "1") == "0":
                 continue
             if not geom.get("name"):
-                geom.set("name", f"{body.get('name')}_collision_{collision_index}")
-            collision_index += 1
-            if foot:
+                geom.set("name", f"{body.get('name')}_collision_{index}")
+            index += 1
+            if is_foot:
                 geom.set("condim", "3")
-                geom.set("friction", foot_friction_str)
+                geom.set("friction", f"{foot_friction} 0.005 0.0001")  # slide torsion roll
                 geom.set("priority", "1")
-                n_foot += 1
             else:
                 geom.set("condim", default_condim)
-                n_other += 1
+            counts["foot" if is_foot else "other"] += 1
         for child in body.findall("body"):
-            walk(child, foot)
+            walk(child, is_foot)
 
-    for body in worldbody.findall("body"):
+    for body in root.find("worldbody").findall("body"):
         walk(body, False)
 
-    tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
     print(
-        f"Patched contacts: {n_foot} foot geom(s) condim=3 friction={foot_friction} "
-        f"priority=1 (bodies {sorted(foot_bodies)}); {n_other} other geom(s) condim={default_condim}"
+        f"Patched contacts: {counts['foot']} foot geom(s) condim=3 friction={foot_friction} "
+        f"priority=1 (bodies {sorted(foot_bodies)}); "
+        f"{counts['other']} other geom(s) condim={default_condim}"
     )
 
 
-def apply_joint_properties(xml_file_path: Path, joint_properties: dict) -> None:
-    tree = ET.parse(xml_file_path)
-    root = tree.getroot()
-
+def apply_joint_properties(root: ET.Element, joint_properties: dict) -> None:
+    """Set frictionloss and armature on every non-free joint."""
     for joint in root.iter("joint"):
-        joint_name = joint.get("name")
-        if not joint_name or joint.get("type") == "free":
+        name = joint.get("name")
+        if not name or joint.get("type") == "free":
             continue
-        joint_config = resolve_joint_properties(joint_name, joint_properties)
-        joint.set("frictionloss", str(require_joint_attribute(joint_name, joint_config, "friction_loss")))
-        joint.set("armature", str(require_joint_attribute(joint_name, joint_config, "armature")))
-
-    tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
-
-
-def replace_cylinders_with_capsules(xml_file_path: Path) -> int:
-    tree = ET.parse(xml_file_path)
-    root = tree.getroot()
-
-    count = 0
-    for geom in root.iter("geom"):
-        if geom.get("type") == "cylinder":
-            geom.set("type", "capsule")
-            count += 1
-
-    if count:
-        tree.write(xml_file_path, encoding="utf-8", xml_declaration=True)
-    return count
+        joint.set("frictionloss", str(_joint_property(name, joint_properties, "friction_loss")))
+        joint.set("armature", str(_joint_property(name, joint_properties, "armature")))
 
 
 # ---------------------------------------------------------------------------
-# Orchestration
+# Driver
 # ---------------------------------------------------------------------------
 
 
-def convert(
-    urdf_path: Path,
-    output_xml_path: Path,
-    joint_properties: dict,
-    *,
-    meshes_dir: Path,
-    out_meshdir: str = "../meshes/visual/",
-    physics_options: dict | None = None,
-    freejoint: bool = False,
-    imu: dict | None = None,
-    contact: dict | None = None,
-    notice: str | None = None,
-) -> Path:
-    urdf_path = Path(urdf_path)
-    output_xml_path = Path(output_xml_path)
-    meshes_dir = Path(meshes_dir)
-    output_xml_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with tempfile.TemporaryDirectory(prefix="rd_mjcf_") as tmp:
-        temp_urdf = Path(tmp) / urdf_path.name
-        # Rewrite mesh refs to bare basenames so compilation resolves them via meshdir,
-        # independent of the raw URDF's own relative paths.
-        tree = robot_model.parse(urdf_path)
-        robot_model.rewrite_mesh_filenames(tree.getroot(), lambda name: name)
-        tree.write(temp_urdf, encoding="utf-8", xml_declaration=True)
-        add_mujoco_compiler_tag(temp_urdf, meshdir=str(meshes_dir.resolve()))
-
-        temp_xml = Path(tmp) / "mjmodel.xml"
-        save_mjcf_from_urdf(temp_urdf, temp_xml)
-
-        if freejoint:
-            add_freejoint(temp_xml)
-        replaced = replace_cylinders_with_capsules(temp_xml)
-        if replaced:
-            print(f"Replaced {replaced} cylinder geom(s) with capsules")
-        add_option_tag(temp_xml, physics_options or {})
-        add_actuators(temp_xml, joint_properties)
-        if imu:
-            add_imu_site_and_sensors(temp_xml, imu)
-        if contact:
-            patch_contacts(temp_xml, contact)
-        apply_joint_properties(temp_xml, joint_properties)
-        set_compiler_meshdir(temp_xml, out_meshdir)
-
-        output_xml_path.write_text(temp_xml.read_text())
-
-    if notice:
-        prepend_comment(output_xml_path, notice)
-
-    return output_xml_path
-
-
-def generate(robot_dir: Path, *, freejoint: bool = False) -> list[Path]:
-    """Generate mjcf/<robot>.xml for a robots/<robot>/ directory."""
-    robot_dir = Path(robot_dir)
+def generate(robot_dir: Path) -> list[Path]:
+    """Write mjcf/<robot>.xml for one ``robots/<robot>/`` directory."""
     robot = robot_dir.name
     cad_dir = robot_dir / "cad"
-    hub_urdf = robot_dir / "urdf" / f"{robot}.urdf"
     joint_properties = json.loads((cad_dir / "joint_properties.json").read_text())
+
     physics_path = cad_dir / "physics.json"
-    physics_options = json.loads(physics_path.read_text()) if physics_path.exists() else {}
-    # Floating-base + IMU are opt-in per variant via physics.json. Pop them out
-    # of physics_options so they don't leak into the MuJoCo <option> tag.
-    freejoint = bool(physics_options.pop("freejoint", False)) or freejoint
-    imu = physics_options.pop("imu", None)
-    contact = physics_options.pop("contact", None)
-    mjcf_path = convert(
-        hub_urdf,
-        robot_dir / "mjcf" / f"{robot}.xml",
-        joint_properties,
-        meshes_dir=robot_dir / "meshes" / "visual",
-        physics_options=physics_options,
-        freejoint=freejoint,
-        imu=imu,
-        contact=contact,
-        notice=robot_model.autogen_comment(robot),
-    )
+    options = json.loads(physics_path.read_text()) if physics_path.exists() else {}
+    # Floating base, IMU and contact are per-variant opt-ins. Pop them so they do not
+    # leak into the MuJoCo <option> tag.
+    freejoint = options.pop("freejoint", False)
+    imu = options.pop("imu", None)
+    contact = options.pop("contact", None)
+
+    with tempfile.TemporaryDirectory(prefix="robot_assets_mjcf_") as tmp:
+        root = compile_mjcf(
+            robot_dir / "urdf" / f"{robot}.urdf",
+            robot_dir / "meshes" / "visual",
+            Path(tmp),
+        )
+
+    if freejoint:
+        add_freejoint(root)
+    replaced = replace_cylinders_with_capsules(root)
+    if replaced:
+        print(f"Replaced {replaced} cylinder geom(s) with capsules")
+    add_option(root, options)
+    add_actuators(root, joint_properties)
+    if imu:
+        add_imu_site_and_sensors(root, imu)
+    if contact:
+        patch_contacts(root, contact)
+    apply_joint_properties(root, joint_properties)
+
+    root.find("compiler").set("meshdir", MESHDIR)
+    banner = ET.Comment(robot_model.autogen_comment(robot))
+    banner.tail = "\n" + INDENT
+    root.insert(0, banner)
+
+    mjcf_path = robot_dir / "mjcf" / f"{robot}.xml"
+    mjcf_path.parent.mkdir(parents=True, exist_ok=True)
+    ET.ElementTree(root).write(mjcf_path, encoding="utf-8", xml_declaration=True)
     return [mjcf_path]
 
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Generate mjcf/<robot>.xml for a robot.")
     parser.add_argument("robot", help="Robot name (under ./robots/) or a path to a robot dir.")
-    parser.add_argument("--freejoint", action="store_true", help="Add a free joint under the first body.")
     args = parser.parse_args(argv)
-    for path in generate(robot_model.resolve_robot_dir(args.robot), freejoint=args.freejoint):
+    for path in generate(robot_model.resolve_robot_dir(args.robot)):
         print(f"Wrote {path}")
 
 

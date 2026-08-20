@@ -13,9 +13,8 @@
     },
 
     "args": {
-        "use_fake_hardware": "true",
-        "use_sim": "false",
-        "mode": "arms",
+        "use_mock_hardware": "true",
+        "sim_mujoco": "false",
         "can_interface_left": "can0",
         "can_interface_right": "can1",
         "calibration_file": ""
@@ -29,10 +28,6 @@
         {"name": "left_arm",  "block_name": "LiteLeftArm",  "can_interface_arg": "can_interface_left"},
         {"name": "right_arm", "block_name": "LiteRightArm", "can_interface_arg": "can_interface_right"}
     ],
-
-    "modes": {
-        "arms": ["left_arm", "right_arm"]
-    },
 
     "joints": [
         {"name": "left_shoulder_pitch",  "group": "left_arm",  "can_id": 11, "model": "rs-02", "direction": -1, "torque_limit": 17,  "current_limit": 27},

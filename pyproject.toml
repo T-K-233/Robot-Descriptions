@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "robot-assets"
-version = "0.3.1"
+version = "0.4.0"
 description = "Robot asset tool: generate URDF / MJCF / xacro from Onshape CAD, and load robot descriptions"
 readme = "README.md"
 requires-python = ">=3.10"
