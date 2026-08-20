@@ -616,7 +616,9 @@ wheels = [
 name = "robot-assets"
 version = "0.3.1"
 source = { editable = "." }
-dependencies = [
+
+[package.optional-dependencies]
+cad = [
     { name = "mujoco" },
     { name = "onshape-to-robot" },
     { name = "pymeshlab" },
@@ -625,17 +627,22 @@ dependencies = [
 [package.dev-dependencies]
 test = [
     { name = "pytest" },
+    { name = "robot-assets", extra = ["cad"] },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "mujoco", specifier = ">=3.4.0" },
-    { name = "onshape-to-robot", specifier = ">=1.8.0" },
-    { name = "pymeshlab", specifier = ">=2025.7.post1" },
+    { name = "mujoco", marker = "extra == 'cad'", specifier = ">=3.4.0" },
+    { name = "onshape-to-robot", marker = "extra == 'cad'", specifier = ">=1.8.0" },
+    { name = "pymeshlab", marker = "extra == 'cad'", specifier = ">=2025.7.post1" },
 ]
+provides-extras = ["cad"]
 
 [package.metadata.requires-dev]
-test = [{ name = "pytest", specifier = ">=8.0" }]
+test = [
+    { name = "pytest", specifier = ">=8.0" },
+    { name = "robot-assets", extras = ["cad"] },
+]
 
 [[package]]
 name = "tomli"

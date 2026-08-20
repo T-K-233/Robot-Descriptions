@@ -99,7 +99,7 @@ the finalize stage idempotent and the MJCF rooted at the CAD root link.
 ## Re-generating from CAD
 
 ```bash
-uv sync
+uv sync --extra cad
 sudo apt install openscad        # for collider editing (onshape-to-robot)
 ```
 

@@ -8,7 +8,10 @@ version = "0.3.1"
 description = "Robot asset tool: generate URDF / MJCF / xacro from Onshape CAD, and load robot descriptions"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = [
+dependencies = []
+
+[project.optional-dependencies]
+cad = [
     "mujoco>=3.4.0",
     "onshape-to-robot>=1.8.0",
     "pymeshlab>=2025.7.post1",
@@ -26,6 +29,7 @@ robot-assets-urdf-to-xacro = "robot_assets.workflow.urdf_to_xacro:main"
 [dependency-groups]
 test = [
     "pytest>=8.0",
+    "robot-assets[cad]",
 ]
 
 [tool.pytest.ini_options]

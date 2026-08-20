@@ -20,7 +20,13 @@ from pathlib import Path
 import tempfile
 import xml.etree.ElementTree as ET
 
-import mujoco
+try:
+    import mujoco
+except ModuleNotFoundError as error:
+    raise ModuleNotFoundError(
+        "MuJoCo is needed to compile MJCF, and ships with the CAD toolchain rather than the "
+        "base install. Install it with `pip install robot-assets[cad]`."
+    ) from error
 
 from . import robot_model
 
