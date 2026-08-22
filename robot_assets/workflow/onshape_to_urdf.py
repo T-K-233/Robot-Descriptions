@@ -26,8 +26,18 @@ from . import robot_model
 
 
 def _onshape_to_robot_bin() -> str:
-    """Locate the onshape-to-robot CLI (PATH, else alongside the running interpreter)."""
-    return shutil.which("onshape-to-robot") or str(Path(sys.executable).parent / "onshape-to-robot")
+    """Locate the onshape-to-robot CLI (PATH, else alongside the running interpreter).
+
+    Raises:
+        FileNotFoundError: If the CLI is missing, i.e. the `cad` extra is not installed.
+    """
+    binary = shutil.which("onshape-to-robot") or str(Path(sys.executable).parent / "onshape-to-robot")
+    if not Path(binary).exists():
+        raise FileNotFoundError(
+            "The onshape-to-robot CLI was not found. It ships with the CAD toolchain rather than "
+            "the base install; install it with `pip install robot-assets[cad]`."
+        )
+    return binary
 
 
 def export(robot_dir: Path, *, keep_assets: bool = False, convert: bool = False) -> Path:
