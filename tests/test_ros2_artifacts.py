@@ -84,6 +84,58 @@ def test_committed_xacro_matches_generator(robot_dir):
         )
 
 
+def _biped_config():
+    """Return (config, limits) for lite_biped, the variant with an IMU and a four-bar."""
+    robot_dir = DESCRIPTIONS / "lite_biped"
+    cfg = json.loads((robot_dir / "cad" / "ros2_control.json").read_text())
+    root = robot_model.parse(robot_dir / "urdf" / "lite_biped.urdf").getroot()
+    return cfg, robot_model.joint_limits(root)
+
+
+@pytest.mark.skipif(not (DESCRIPTIONS / "lite_biped").is_dir(), reason="no lite_biped")
+def test_group_without_joints_is_rejected():
+    """A group with no joints would emit a bus block calling an undefined macro."""
+    cfg, limits = _biped_config()
+    cfg["groups"].append(
+        {"name": "neck", "block_name": "LiteBipedNeck", "can_interface_arg": "can_interface_left"})
+    with pytest.raises(ValueError, match="list no joints"):
+        urdf_to_xacro.build_ros2_control_xacro("lite_biped", cfg, limits)
+
+
+@pytest.mark.skipif(not (DESCRIPTIONS / "lite_biped").is_dir(), reason="no lite_biped")
+def test_linkage_without_use_linkage_arg_is_rejected():
+    """The four-bar macros reference ${use_linkage}, so the arg must be declared."""
+    cfg, limits = _biped_config()
+    del cfg["args"]["use_linkage"]
+    with pytest.raises(ValueError, match="use_linkage"):
+        urdf_to_xacro.build_ros2_control_xacro("lite_biped", cfg, limits)
+
+
+@pytest.mark.skipif(not (DESCRIPTIONS / "lite_biped").is_dir(), reason="no lite_biped")
+def test_partial_linkage_is_rejected():
+    """humanoid_devices_robstride aborts on some-but-not-all of the four bar lengths."""
+    cfg, limits = _biped_config()
+    for joint in cfg["joints"]:
+        if "linkage" in joint:
+            del joint["linkage"]["sign"]
+    with pytest.raises(ValueError, match="linkage is missing"):
+        urdf_to_xacro.build_ros2_control_xacro("lite_biped", cfg, limits)
+
+
+@pytest.mark.skipif(not (DESCRIPTIONS / "lite_biped").is_dir(), reason="no lite_biped")
+def test_imu_without_real_plugin_emits_no_sensor_component():
+    """A sim-only IMU is backed by MujocoSystem, so real hardware gets no sensor block."""
+    cfg, limits = _biped_config()
+    del cfg["imu"]["real_plugin"]
+    del cfg["imu"]["real_block_name"]
+    del cfg["args"]["imu_port"]
+    text = urdf_to_xacro.build_ros2_control_xacro("lite_biped", cfg, limits)
+    assert 'type="sensor"' not in text
+    assert "imu_port" not in text
+    # The combined block still carries the sim sensor.
+    assert f'<sensor name="{cfg["imu"]["name"]}">' in text
+
+
 @pytest.mark.skipif(not RC_DIRS, reason="no ros2_control robots")
 @pytest.mark.parametrize("robot_dir", RC_DIRS, ids=RC_IDS)
 def test_ros2_control_structure(robot_dir):
@@ -91,18 +143,52 @@ def test_ros2_control_structure(robot_dir):
     cfg = json.loads((robot_dir / "cad" / "ros2_control.json").read_text())
     text = (robot_dir / "xacro" / f"{robot}.ros2_control.xacro").read_text()
 
-    # one joint instantiation per configured joint
-    assert text.count(f"<xacro:{robot}_joint ") == len(cfg["joints"])
-    # all three backends present
+    # One joint instantiation per configured joint. A joint that declares a four-bar
+    # uses the linkage macro instead of the plain one.
+    plain = sum(1 for j in cfg["joints"] if not j.get("linkage"))
+    linkage = len(cfg["joints"]) - plain
+    assert text.count(f"<xacro:{robot}_joint ") == plain
+    assert text.count(f"<xacro:{robot}_linkage_joint ") == linkage
     for plugin in cfg["backends"].values():
         assert plugin in text, f"missing backend {plugin}"
-    # every non-stub group emits its bus block
     for group in cfg["groups"]:
-        if not group.get("stub"):
-            assert group["block_name"] in text
-    # CAN ids appear as joint-call attributes
+        assert group["block_name"] in text
     for joint in cfg["joints"]:
         assert f'can_id="{joint["can_id"]}"' in text
+
+
+@pytest.mark.skipif(not RC_DIRS, reason="no ros2_control robots")
+@pytest.mark.parametrize("robot_dir", RC_DIRS, ids=RC_IDS)
+def test_backend_args_follow_ros2_control_naming(robot_dir):
+    """The backend switches use the current ros2_control / Universal Robots names.
+
+    `use_fake_hardware` is the pre-Iron spelling, and a bare `use_sim` shadows the
+    unrelated `use_sim_time` node parameter. Both were renamed.
+    """
+    cfg = json.loads((robot_dir / "cad" / "ros2_control.json").read_text())
+    args = cfg["args"]
+    assert urdf_to_xacro.MOCK_ARG in args
+    assert urdf_to_xacro.SIM_ARG in args
+    assert "use_fake_hardware" not in args
+    assert "use_sim" not in args
+
+
+@pytest.mark.skipif(not RC_DIRS, reason="no ros2_control robots")
+@pytest.mark.parametrize("robot_dir", RC_DIRS, ids=RC_IDS)
+def test_joint_macros_are_backend_agnostic(robot_dir):
+    """No backend switch reaches a <joint>.
+
+    Every backend ignores the params it does not know -- MujocoSystem reads only `mimic`
+    and `multiplier`, and mock_components/GenericSystem stores the rest -- so the hardware
+    params are emitted unconditionally. The switches select a plugin and nothing else.
+    """
+    robot = robot_dir.name
+    text = (robot_dir / "xacro" / f"{robot}.ros2_control.xacro").read_text()
+    joint_macros = text.split("_ros2_control_combined")[0]
+    for arg in (urdf_to_xacro.MOCK_ARG, urdf_to_xacro.SIM_ARG):
+        assert arg not in joint_macros, f"{arg} leaked into the joint macros"
+    assert "xacro:unless" not in joint_macros
+    assert "xacro:if" not in joint_macros
 
 
 @pytest.mark.skipif(not RC_DIRS, reason="no ros2_control robots")

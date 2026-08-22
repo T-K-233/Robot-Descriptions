@@ -1,18 +1,18 @@
-"""Stage 1 of the converter: export the raw URDF + meshes from Onshape CAD.
+"""Stage 1 of the converter: export the raw URDF and meshes from Onshape CAD.
 
-Wraps the external `onshape-to-robot` tool and normalises its output into the
+Wraps the external ``onshape-to-robot`` tool and normalizes its output into the
 robots/<robot>/ layout:
 
     robots/<robot>/
       cad/config.json          (input: Onshape doc + export options)
       cad/scad/                (input: custom collider sources)
-      urdf/<robot>.urdf        (output: flat URDF -- the committed kinematic hub)
+      urdf/<robot>.urdf        (output: the flat URDF, the committed kinematic hub)
       meshes/visual/*.stl      (output: merged visual meshes, one copy)
 
-The flat URDF is the committed, cacheable hub; the `urdf` finalize stage then
-harmonizes its effort limits, and the mjcf/xacro stages derive from it. With a
-committed hub, iterating on physics.json / ros2_control.json via `--from-cache`
-never re-hits the Onshape API (~1000 requests per export).
+The flat URDF is the committed, cacheable hub. The ``urdf`` finalize stage then welds and
+harmonizes it, and the mjcf and xacro stages derive from it. With a committed hub, work on
+physics.json or ros2_control.json never re-hits the Onshape API, which costs about 1000
+requests per export.
 """
 
 import argparse
@@ -25,24 +25,17 @@ import sys
 from . import robot_model
 
 
-def _onshape_to_robot_bin() -> str:
-    """Locate the onshape-to-robot CLI (PATH, else alongside the running interpreter).
+def export(robot_dir: Path, keep_assets: bool = False, convert: bool = False) -> Path:
+    """Run onshape-to-robot for ``robot_dir`` and place the outputs in the cad/ layout.
 
-    Raises:
-        FileNotFoundError: If the CLI is missing, i.e. the `cad` extra is not installed.
+    Args:
+        robot_dir: The ``robots/<robot>/`` directory to export.
+        keep_assets: Keep ``cad/assets/`` and ``cad/robot.pkl`` after the run.
+        convert: Rebuild from the local ``robot.pkl`` instead of calling the Onshape API.
+
+    Returns:
+        Path to the written ``urdf/<robot>.urdf`` hub.
     """
-    binary = shutil.which("onshape-to-robot") or str(Path(sys.executable).parent / "onshape-to-robot")
-    if not Path(binary).exists():
-        raise FileNotFoundError(
-            "The onshape-to-robot CLI was not found. It ships with the CAD toolchain rather than "
-            "the base install; install it with `pip install robot-assets[cad]`."
-        )
-    return binary
-
-
-def export(robot_dir: Path, *, keep_assets: bool = False, convert: bool = False) -> Path:
-    """Run onshape-to-robot for ``robot_dir`` and place outputs in the cad/ layout."""
-    robot_dir = Path(robot_dir)
     robot = robot_dir.name
     cad_dir = robot_dir / "cad"
     config_path = cad_dir / "config.json"
@@ -59,12 +52,18 @@ def export(robot_dir: Path, *, keep_assets: bool = False, convert: bool = False)
         for scad_file in scad_dir.iterdir():
             shutil.copy(scad_file, assets_dir / scad_file.name)
 
-    arguments = [_onshape_to_robot_bin(), str(cad_dir)]
+    binary = shutil.which("onshape-to-robot") or str(Path(sys.executable).parent / "onshape-to-robot")
+    if not Path(binary).exists():
+        raise FileNotFoundError(
+            "The onshape-to-robot CLI was not found. It ships with the CAD toolchain rather than "
+            "the base install; install it with `pip install robot-assets[cad]`."
+        )
+    arguments = [binary, str(cad_dir)]
     if convert:
-        # Offline: reload the existing robot.pkl instead of hitting the Onshape API.
-        # --save-pickle must NOT be combined with --convert: onshape-to-robot runs its
-        # save branch before the convert branch, but no robot is built on the convert
-        # path, so the two together raise a NameError.
+        # Offline: reload the existing robot.pkl. --save-pickle must NOT be combined with
+        # --convert, because onshape-to-robot runs its save branch before its convert
+        # branch and no robot is built on the convert path, so the two together raise a
+        # NameError.
         arguments.append("--convert")
     elif keep_assets:
         # Build path: persist robot.pkl so later runs can re-derive offline via --convert.
@@ -73,23 +72,21 @@ def export(robot_dir: Path, *, keep_assets: bool = False, convert: bool = False)
 
     # Merged visual meshes -> the single meshes/visual/ copy.
     merged = assets_dir / "merged"
-    visual_dir = robot_dir / "meshes" / "visual"
     if merged.exists():
+        visual_dir = robot_dir / "meshes" / "visual"
         visual_dir.mkdir(parents=True, exist_ok=True)
         shutil.copytree(merged, visual_dir, dirs_exist_ok=True)
 
-    # Flat URDF -> urdf/<robot>.urdf, with mesh refs pointed at meshes/visual/
-    # and the ROS package:// scheme stripped. The `urdf` finalize stage then
-    # harmonizes effort limits in place.
+    # Flat URDF -> urdf/<robot>.urdf, with mesh refs pointed at meshes/visual/ and the ROS
+    # package:// scheme stripped. The finalize stage then harmonizes it in place.
+    hub_urdf = robot_dir / "urdf" / f"{robot}.urdf"
+    hub_urdf.parent.mkdir(parents=True, exist_ok=True)
     produced_urdf = cad_dir / f"{output_filename}.urdf"
-    urdf_dir = robot_dir / "urdf"
-    urdf_dir.mkdir(parents=True, exist_ok=True)
-    hub_urdf = urdf_dir / f"{robot}.urdf"
-
-    content = produced_urdf.read_text()
-    content = content.replace("assets/merged/", "../meshes/visual/")
-    content = content.replace("package://", "")
-    hub_urdf.write_text(content)
+    hub_urdf.write_text(
+        produced_urdf.read_text()
+        .replace("assets/merged/", "../meshes/visual/")
+        .replace("package://", "")
+    )
     produced_urdf.unlink(missing_ok=True)
 
     if not keep_assets:
