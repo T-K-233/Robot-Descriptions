@@ -163,7 +163,7 @@ def test_backend_args_follow_ros2_control_naming(robot_dir):
     """The backend switches use the current ros2_control / Universal Robots names.
 
     `use_fake_hardware` is the pre-Iron spelling, and a bare `use_sim` shadows the
-    unrelated `use_sim_time` node parameter. Both were renamed.
+    unrelated `use_sim_time` node parameter.
     """
     cfg = json.loads((robot_dir / "cad" / "ros2_control.json").read_text())
     args = cfg["args"]
