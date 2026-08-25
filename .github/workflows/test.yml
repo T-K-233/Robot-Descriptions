@@ -62,12 +62,19 @@ jobs:
           # `$(find lite_description)/...` xacro includes resolve.
           source "$GITHUB_WORKSPACE/ws/install/setup.bash"
           set -euo pipefail
+          # Each assembly must expand on every backend it supports, not just the
+          # default. Only the real backend emits the per-bus <ros2_control>
+          # blocks that the hardware bring-ups depend on.
           for assembly in robots/*/xacro/*.urdf.xacro; do
-            robot_dir=$(dirname "$(dirname "$assembly")")
-            meshes="$robot_dir/meshes/visual"
-            out="/tmp/$(basename "$assembly" .urdf.xacro).urdf"
-            echo "::group::$assembly"
-            xacro "$assembly" "mesh_root:=$meshes" > "$out"
-            check_urdf "$out"
-            echo "::endgroup::"
+            for backend in \
+              "" \
+              "use_mock_hardware:=false" \
+              "sim_mujoco:=true" \
+              "use_mock_hardware:=false sim_mujoco:=true"; do
+              out="/tmp/$(basename "$assembly" .urdf.xacro).urdf"
+              echo "::group::$assembly [${backend:-default}]"
+              xacro "$assembly" $backend > "$out"
+              check_urdf "$out"
+              echo "::endgroup::"
+            done
           done

@@ -38,6 +38,16 @@ ROBOT_IDS = [p.name for p in ROBOT_DIRS]
 RC_DIRS = _robots_with_ros2_control()
 RC_IDS = [p.name for p in RC_DIRS]
 
+# The four backend selections the description supports. Only the real one emits
+# per-bus blocks; the rest collapse to a single combined component.
+BACKENDS = [
+    [],
+    ["use_mock_hardware:=false"],
+    ["sim_mujoco:=true"],
+    ["use_mock_hardware:=false", "sim_mujoco:=true"],
+]
+BACKEND_IDS = ["mock", "real", "sim", "sim_over_real"]
+
 
 @pytest.mark.skipif(not ROBOT_DIRS, reason="no generated xacro robots")
 @pytest.mark.parametrize("robot_dir", ROBOT_DIRS, ids=ROBOT_IDS)
@@ -163,7 +173,7 @@ def test_backend_args_follow_ros2_control_naming(robot_dir):
     """The backend switches use the current ros2_control / Universal Robots names.
 
     `use_fake_hardware` is the pre-Iron spelling, and a bare `use_sim` shadows the
-    unrelated `use_sim_time` node parameter. Both were renamed.
+    unrelated `use_sim_time` node parameter.
     """
     cfg = json.loads((robot_dir / "cad" / "ros2_control.json").read_text())
     args = cfg["args"]
@@ -236,17 +246,35 @@ def test_description_has_base_link_and_mesh_root(robot_dir):
 @pytest.mark.skipif(shutil.which("xacro") is None or shutil.which("check_urdf") is None,
                     reason="xacro/check_urdf not installed (ROS / RoboStack-pixi only)")
 @pytest.mark.parametrize("robot_dir", ROBOT_DIRS, ids=ROBOT_IDS)
-def test_xacro_expands_and_check_urdf(robot_dir, tmp_path):
+@pytest.mark.parametrize("backend", BACKENDS, ids=BACKEND_IDS)
+def test_xacro_expands_and_check_urdf(robot_dir, backend, tmp_path):
     """Expand the top assembly and validate with check_urdf (the ros2_control_demos test)."""
     robot = robot_dir.name
     assembly = robot_dir / "xacro" / f"{robot}.urdf.xacro"
     out = tmp_path / f"{robot}.urdf"
-    # mesh_root override so package:// doesn't need an installed ament workspace
     expanded = subprocess.run(
-        ["xacro", str(assembly), f"mesh_root:={robot_dir / 'meshes' / 'visual'}"],
-        capture_output=True, text=True,
-    )
+        ["xacro", str(assembly), *backend], capture_output=True, text=True)
     assert expanded.returncode == 0, expanded.stderr
     out.write_text(expanded.stdout)
     checked = subprocess.run(["check_urdf", str(out)], capture_output=True, text=True)
     assert checked.returncode == 0, checked.stderr
+
+
+@pytest.mark.skipif(shutil.which("xacro") is None, reason="xacro not installed")
+@pytest.mark.parametrize("robot_dir", RC_DIRS, ids=RC_IDS)
+def test_real_backend_emits_one_block_per_bus(robot_dir):
+    """The real backend must emit a <ros2_control> block per bus, plus one per sensor.
+
+    The other three backends collapse to a single combined block, so only this one
+    exercises the per-bus macro that every hardware bring-up depends on.
+    """
+    robot = robot_dir.name
+    cfg = json.loads((robot_dir / "cad" / "ros2_control.json").read_text())
+    expected = len(cfg["groups"]) + (1 if cfg.get("imu") else 0)
+    expanded = subprocess.run(
+        ["xacro", str(robot_dir / "xacro" / f"{robot}.urdf.xacro"), "use_mock_hardware:=false"],
+        capture_output=True, text=True)
+    assert expanded.returncode == 0, expanded.stderr
+    names = [e.get("name") for e in ET.fromstring(expanded.stdout).iter("ros2_control")]
+    assert len(names) == expected, f"{robot}: expected {expected} blocks, got {names}"
+    assert len(set(names)) == len(names), f"{robot}: duplicate component names {names}"
