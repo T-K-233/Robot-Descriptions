@@ -22,8 +22,6 @@
 
     "base_link": {"name": "base_link", "child": "chest"},
 
-    "combined_block_name": "LiteHardware",
-
     "groups": [
         {"name": "left_arm",  "block_name": "LiteLeftArm",  "can_interface_arg": "can_interface_left"},
         {"name": "right_arm", "block_name": "LiteRightArm", "can_interface_arg": "can_interface_right"}

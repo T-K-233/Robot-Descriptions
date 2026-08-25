@@ -75,9 +75,12 @@
                             current_limit="14"/>
   </xacro:macro>
 
-  <!-- Combined single block for the mock and MuJoCo backends. -->
-  <xacro:macro name="lite_dummy_ros2_control_combined" params="name sim_mujoco">
-    <ros2_control name="${name}" type="system">
+  <!-- Mock and MuJoCo backends. One block per bus, carrying the same component
+       names as the real backend, so anything keyed by component name means the
+       same thing on every backend: a controller's safety_components, the
+       hardware_spawner, the manager's hardware_components_initial_state. -->
+  <xacro:macro name="lite_dummy_ros2_control_combined" params="sim_mujoco">
+    <ros2_control name="LiteLeftArm" type="system">
       <hardware>
         <xacro:if value="${sim_mujoco}">
           <plugin>mujoco_ros2_control/MujocoSystem</plugin>
@@ -87,7 +90,29 @@
         </xacro:unless>
       </hardware>
       <xacro:lite_dummy_left_arm_joints/>
+      <xacro:unless value="${sim_mujoco}">
+        <gpio name="LiteLeftArm">
+          <state_interface name="safety_level"/>
+          <state_interface name="safety_flags"/>
+        </gpio>
+      </xacro:unless>
+    </ros2_control>
+    <ros2_control name="LiteRightArm" type="system">
+      <hardware>
+        <xacro:if value="${sim_mujoco}">
+          <plugin>mujoco_ros2_control/MujocoSystem</plugin>
+        </xacro:if>
+        <xacro:unless value="${sim_mujoco}">
+          <plugin>mock_components/GenericSystem</plugin>
+        </xacro:unless>
+      </hardware>
       <xacro:lite_dummy_right_arm_joints/>
+      <xacro:unless value="${sim_mujoco}">
+        <gpio name="LiteRightArm">
+          <state_interface name="safety_level"/>
+          <state_interface name="safety_flags"/>
+        </gpio>
+      </xacro:unless>
     </ros2_control>
   </xacro:macro>
 
@@ -117,10 +142,10 @@
        boolean per non-real backend, real hardware as the fallback when both are false.
        sim_mujoco wins over use_mock_hardware. -->
   <xacro:macro name="lite_dummy_ros2_control"
-               params="name use_mock_hardware sim_mujoco can_interface_left can_interface_right
+               params="use_mock_hardware sim_mujoco can_interface_left can_interface_right
                        calibration_file">
     <xacro:if value="${sim_mujoco or use_mock_hardware}">
-      <xacro:lite_dummy_ros2_control_combined name="${name}" sim_mujoco="${sim_mujoco}"/>
+      <xacro:lite_dummy_ros2_control_combined sim_mujoco="${sim_mujoco}"/>
     </xacro:if>
     <xacro:unless value="${sim_mujoco or use_mock_hardware}">
       <xacro:lite_dummy_ros2_control_real

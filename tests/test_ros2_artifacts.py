@@ -278,3 +278,65 @@ def test_real_backend_emits_one_block_per_bus(robot_dir):
     names = [e.get("name") for e in ET.fromstring(expanded.stdout).iter("ros2_control")]
     assert len(names) == expected, f"{robot}: expected {expected} blocks, got {names}"
     assert len(set(names)) == len(names), f"{robot}: duplicate component names {names}"
+
+
+@pytest.mark.skipif(shutil.which("xacro") is None, reason="xacro not installed")
+@pytest.mark.parametrize("robot_dir", RC_DIRS, ids=RC_IDS)
+def test_component_names_match_across_backends(robot_dir):
+    """Every backend must name its components the same.
+
+    Anything keyed by component name means a different thing otherwise: a
+    controller's `safety_components`, the hardware_spawner, the manager's
+    `hardware_components_initial_state`. A safety monitor naming the real
+    components simply would not load in simulation, which is where it can be
+    tested without a robot.
+
+    The real backend may carry components the others cannot back -- an IMU has no
+    source under mock -- so mock is checked as a subset, sim for equality.
+    """
+    robot = robot_dir.name
+    assembly = robot_dir / "xacro" / f"{robot}.urdf.xacro"
+
+    def components(*args):
+        out = subprocess.run(["xacro", str(assembly), *args],
+                             capture_output=True, text=True)
+        assert out.returncode == 0, out.stderr
+        return {e.get("name") for e in ET.fromstring(out.stdout).iter("ros2_control")}
+
+    real = components("use_mock_hardware:=false")
+    sim = components("sim_mujoco:=true")
+    mock = components()
+
+    assert sim == real, f"{robot}: sim {sorted(sim)} != real {sorted(real)}"
+    assert mock <= real, f"{robot}: mock {sorted(mock)} is not a subset of real {sorted(real)}"
+
+
+@pytest.mark.skipif(shutil.which("xacro") is None, reason="xacro not installed")
+@pytest.mark.parametrize("robot_dir", RC_DIRS, ids=RC_IDS)
+def test_mock_exports_the_safety_interfaces(robot_dir):
+    """Mock declares safety_level and safety_flags per component as a <gpio>.
+
+    The real drivers export them from
+    export_unlisted_state_interface_descriptions(), which mock_components has no
+    equivalent for, so without the gpio a safety monitor cannot be exercised off
+    the robot. MuJoCo is excluded on purpose: our MujocoSystem overrides the
+    deprecated by-value export_state_interfaces(), which bypasses the base
+    class's gpio handling, so declaring them there would promise interfaces that
+    never appear.
+    """
+    robot = robot_dir.name
+    out = subprocess.run(
+        ["xacro", str(robot_dir / "xacro" / f"{robot}.urdf.xacro")],
+        capture_output=True, text=True)
+    assert out.returncode == 0, out.stderr
+    root = ET.fromstring(out.stdout)
+    for block in root.iter("ros2_control"):
+        if block.get("type") != "system":
+            continue
+        gpios = {g.get("name"): {si.get("name") for si in g.iter("state_interface")}
+                 for g in block.iter("gpio")}
+        assert block.get("name") in gpios, (
+            f'{robot}: mock component {block.get("name")} declares no safety gpio')
+        assert {"safety_level", "safety_flags"} <= gpios[block.get("name")], (
+            f'{robot}: {block.get("name")} gpio is missing a safety interface')
+
