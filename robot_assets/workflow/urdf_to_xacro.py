@@ -210,17 +210,23 @@ def _group_macro(robot: str, group: str, joints: list[dict], limits: dict) -> st
 
 
 def _combined_macro(robot: str, groups: list[dict], backends: dict, imu: dict | None) -> str:
-    """Return the single-block macro shared by the mock and MuJoCo backends."""
-    calls = "\n".join(f'      <xacro:{robot}_{g["name"]}_joints/>' for g in groups)
-    # Only MuJoCo backs the IMU state interfaces; mock_components has no source for them.
-    sensor = (
-        f'\n      <xacro:if value="${{{SIM_ARG}}}">\n'
-        f'{_sensor_element(imu["name"], "        ")}\n      </xacro:if>'
-        if imu else ""
-    )
-    return f"""  <!-- Combined single block for the mock and MuJoCo backends. -->
-{_macro_open(f"{robot}_ros2_control_combined", ["name", SIM_ARG])}
-    <ros2_control name="${{name}}" type="system">
+    """Return the mock and MuJoCo macro: one block per bus, named as the real one."""
+    blocks = []
+    for group in groups:
+        # A gpio only under mock. The real backend exports these two through
+        # export_unlisted_state_interface_descriptions(), and MujocoSystem
+        # overrides the deprecated by-value export_state_interfaces(), which
+        # bypasses the base class's gpio handling -- declaring them there would
+        # promise interfaces that never appear.
+        safety = (
+            f'\n      <xacro:unless value="${{{SIM_ARG}}}">\n'
+            f'        <gpio name="{group["block_name"]}">\n'
+            f'          <state_interface name="safety_level"/>\n'
+            f'          <state_interface name="safety_flags"/>\n'
+            f'        </gpio>\n'
+            f'      </xacro:unless>'
+        )
+        blocks.append(f"""    <ros2_control name="{group["block_name"]}" type="system">
       <hardware>
         <xacro:if value="${{{SIM_ARG}}}">
           <plugin>{backends["sim"]}</plugin>
@@ -229,8 +235,35 @@ def _combined_macro(robot: str, groups: list[dict], backends: dict, imu: dict | 
           <plugin>{backends["mock"]}</plugin>
         </xacro:unless>
       </hardware>
-{calls}{sensor}
-    </ros2_control>
+      <xacro:{robot}_{group["name"]}_joints/>{safety}
+    </ros2_control>""")
+    if imu and imu.get("real_block_name"):
+        # The real backend gives the IMU its own sensor component, so sim matches
+        # the name. Only MuJoCo backs the state interfaces; mock has no source.
+        blocks.append(
+            f'    <xacro:if value="${{{SIM_ARG}}}">\n'
+            f'      <ros2_control name="{imu["real_block_name"]}" type="sensor">\n'
+            f'        <hardware>\n'
+            f'          <plugin>{backends["sim"]}</plugin>\n'
+            f'        </hardware>\n'
+            f'{_sensor_element(imu["name"], "        ")}\n'
+            f'      </ros2_control>\n'
+            f'    </xacro:if>')
+    elif imu:
+        # A sim-only IMU has no real component to match, so it stays nested in the
+        # first bus block rather than inventing a component name of its own.
+        nested = (
+            f'\n      <xacro:if value="${{{SIM_ARG}}}">\n'
+            f'{_sensor_element(imu["name"], "        ")}\n'
+            f'      </xacro:if>')
+        blocks[0] = blocks[0].replace("\n    </ros2_control>", f"{nested}\n    </ros2_control>")
+    body = "\n".join(blocks)
+    return f"""  <!-- Mock and MuJoCo backends. One block per bus, carrying the same component
+       names as the real backend, so anything keyed by component name means the
+       same thing on every backend: a controller's safety_components, the
+       hardware_spawner, the manager's hardware_components_initial_state. -->
+{_macro_open(f"{robot}_ros2_control_combined", [SIM_ARG])}
+{body}
   </xacro:macro>"""
 
 
@@ -274,9 +307,9 @@ def _top_macro(robot: str, args: list[str], real_params: list[str]) -> str:
     return f"""  <!-- Backend dispatch, following the Universal Robots description convention: one
        boolean per non-real backend, real hardware as the fallback when both are false.
        {SIM_ARG} wins over {MOCK_ARG}. -->
-{_macro_open(f"{robot}_ros2_control", ["name", *args])}
+{_macro_open(f"{robot}_ros2_control", args)}
     <xacro:if value="${{{SIM_ARG} or {MOCK_ARG}}}">
-      <xacro:{robot}_ros2_control_combined name="${{name}}" {SIM_ARG}="${{{SIM_ARG}}}"/>
+      <xacro:{robot}_ros2_control_combined {SIM_ARG}="${{{SIM_ARG}}}"/>
     </xacro:if>
     <xacro:unless value="${{{SIM_ARG} or {MOCK_ARG}}}">
       <xacro:{robot}_ros2_control_real
@@ -369,7 +402,6 @@ def build_assembly_xacro(robot: str, ros2_control: dict | None, package: str = D
   <xacro:{robot}_description/>
 
   <xacro:{robot}_ros2_control
-    name="{ros2_control["combined_block_name"]}"
 {forwarded}/>
 </robot>
 """

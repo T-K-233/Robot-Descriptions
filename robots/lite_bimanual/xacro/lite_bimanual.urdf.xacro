@@ -13,7 +13,6 @@
   <xacro:lite_bimanual_description/>
 
   <xacro:lite_bimanual_ros2_control
-    name="LiteHardware"
     use_mock_hardware="$(arg use_mock_hardware)"
     sim_mujoco="$(arg sim_mujoco)"
     can_interface_left="$(arg can_interface_left)"

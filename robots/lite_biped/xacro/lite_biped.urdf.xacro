@@ -15,7 +15,6 @@
   <xacro:lite_biped_description/>
 
   <xacro:lite_biped_ros2_control
-    name="LiteBipedHardware"
     use_mock_hardware="$(arg use_mock_hardware)"
     sim_mujoco="$(arg sim_mujoco)"
     can_interface_left="$(arg can_interface_left)"
